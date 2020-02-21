@@ -1,0 +1,19 @@
+scalar Date
+
+type Query {
+	getNifty50 : ScripData!
+}
+
+type ScripData {
+	count: Int,
+	scrips: [Scrip!]!
+}
+ 
+type Scrip {
+	company : String, 
+	industry : String, 
+	isin : String, 
+	symbol : String, 
+	series : String, 
+	date:Date
+}

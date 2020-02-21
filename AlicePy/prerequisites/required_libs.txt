@@ -1,0 +1,8 @@
+requests==2.18.4
+ConfigParser
+requests_oauthlib
+request
+flask
+websocket_client==0.54.0
+cryptography
+kafka-python

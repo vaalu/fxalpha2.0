@@ -1,0 +1,58 @@
+{
+  "name": "alphaonegraphql",
+  "version": "2.0.0",
+  "description": "Alpha One v2.0 - the backend for alphaone ui of fxAlpha 2.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "npm-run-all -p start:*",
+    "start:apollo": "ts-node-dev src/index",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "test": "jest --config jestconfig.json",
+    "prepare": "rimraf ./dist && mkdir dist &&  npm run build && npm run lint && npm test"
+  },
+  "dependencies": {
+    "@graphql-modules/core": "^0.7.11",
+    "@graphql-modules/di": "^0.7.11",
+    "@types/express": "^4.17.1",
+    "@types/graphql-depth-limit": "^1.1.2",
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^12.7.11",
+    "@types/node-fetch": "^2.5.1",
+    "apollo-server": "^2.9.3",
+    "csvtojson": "^2.0.10",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.17.1",
+    "graphql": "^14.5.8",
+    "graphql-depth-limit": "^1.1.0",
+    "graphql-import": "^0.7.1",
+    "graphql-import-node": "0.0.4",
+    "graphql-tag-pluck": "^0.8.5",
+    "graphql-toolkit": "^0.5.12",
+    "lodash": "^4.17.15",
+    "node-fetch": "^2.6.0",
+    "reflect-metadata": "^0.1.13",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.9.1",
+    "jest": "^24.9.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.2.1",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "tslint": "^5.19.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  },
+  "keywords": [
+    "alphaone",
+    "graphql"
+  ],
+  "author": "Mohanavel Ponnusamy",
+  "license": "ISC"
+}
