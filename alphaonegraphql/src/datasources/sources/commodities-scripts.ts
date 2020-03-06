@@ -12,8 +12,8 @@ export default class Commodities {
 	
 	public getCommoditiesScrips = async () => {
 		return [
-			{'instrument':'Crude Oil', 'id':'CRUDEOIL', 'token':215546, 'date' : (new Date()).toISOString().slice(0, 10) }, 
-			{'instrument':'Natural Gas', 'id':'NATURALGAS', 'token':217158, 'date' : (new Date()).toISOString().slice(0, 10)}
+			{'instrument':'Crude Oil', 'id':'CRUDEOIL', 'token':216824, 'date' : (new Date()).toISOString().slice(0, 10) }, 
+			{'instrument':'Natural Gas', 'id':'NATURALGAS', 'token':217622, 'date' : (new Date()).toISOString().slice(0, 10)}
 		]
 	}
 

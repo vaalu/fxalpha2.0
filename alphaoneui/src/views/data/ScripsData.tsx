@@ -7,14 +7,14 @@ export default async () => {
 		query : GET_NIFTY_50_QUERY
 	}).then(result => {
 		// console.log('Resolved value: ', result)
-		data = result.data.getNifty50
+		data = result.data.getNifty50Sourced
 	})
 	return data
 } 
 
 const GET_NIFTY_50_QUERY = gql`
 		query {
-				getNifty50 {
+				getNifty50Sourced {
 					count
 					scrips {
 						company
@@ -23,6 +23,7 @@ const GET_NIFTY_50_QUERY = gql`
 						isin
 						date
 						series
+						instrument_id
 					}
 				}
 			}`

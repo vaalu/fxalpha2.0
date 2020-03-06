@@ -65,10 +65,10 @@ def invoke(token):
 	def runF(*args):
 		inite = Main(segment=4, token=token)
 		print('Initialized for commodities data')
-	def runE(*args):
-		initf = Equities(segment=4, token=token)
-		print('Initialized for equities data')
 	thread.start_new_thread(runF, ())
+	def runE(*args):
+	 	initf = Equities(segment=4, token=token)
+	 	print('Initialized for equities data')
 	thread.start_new_thread(runE, ())
 	return 'WebSocket established with token:%s'%(token)
 

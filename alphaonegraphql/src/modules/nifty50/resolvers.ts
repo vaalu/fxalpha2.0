@@ -11,6 +11,12 @@ export default {
 			})
 			// console.log(response)
 			return response
+		},
+		getNifty50Sourced : async () => {
+			const nifty = new Nifty50()
+			const response = nifty.getNifty50Sourced()
+			console.log(response)
+			return response
 		}
 	}
 

@@ -74,7 +74,7 @@ export class Tasks extends Component {
           </td>
           <td>{tasks_title[i].company}</td>
           <td className="td-actions text-right">{tasks_title[i].symbol}</td>
-          <td className="td-actions text-right">{tasks_title[i].isin}</td>
+          <td className="td-actions text-right">{tasks_title[i].instrument_id}</td>
         </tr>
       );
     }
