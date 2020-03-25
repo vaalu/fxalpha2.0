@@ -5,13 +5,11 @@ describe('Alice', () => {
 	describe('Alice Blue Connect', () => {
 		
 		const {
-			Query:{ aliceAntCommodityScrips:resolver }
+			Query:{ aliceConnect:resolver }
 		} = resolvers
 
 		test('Sample testing for alice blue connecion', () => {
-			expect(resolver().then((val) => {
-				expect(val).toBe({})
-			}))
+			expect(resolver('parent', 'token')).toBeDefined()
 		})
 	})
 });

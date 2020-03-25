@@ -5,7 +5,7 @@ describe('Commodities', () => {
 	describe('Commodities Name List', () => {
 		
 		const {
-			Query:{ get:resolver }
+			Query:{ getCommodities:resolver }
 		} = resolvers
 
 		test('Sample testing for Commodities names', () => {
