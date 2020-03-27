@@ -18,12 +18,11 @@
 import React, { Component } from "react";
 import { FormGroup, ControlLabel, FormControl, Row } from "react-bootstrap";
 
-function FieldGroup({ label, inputname, ...props }) {
-  console.log('Properties passed to alice: ', inputname)
+function FieldGroup({ label, ...props }) {
   return (
     <FormGroup>
       <ControlLabel>{label}</ControlLabel>
-      <FormControl {...props} inputRef={inputname} />
+      <FormControl {...props} />
     </FormGroup>
   );
 }

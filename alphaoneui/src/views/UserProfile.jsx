@@ -24,12 +24,13 @@ import {
   ControlLabel,
   FormControl
 } from "react-bootstrap";
-import { Card } from "../components/Card/Card.jsx";
-import { FormInputs } from "../components/FormInputs/FormInputs.jsx";
-import { UserCard } from "../components/UserCard/UserCard.jsx";
-import Button from "../components/CustomButton/CustomButton.jsx";
 
-import avatar from "../assets/img/users/sample_av.png";
+import { Card } from "components/Card/Card.jsx";
+import { FormInputs } from "components/FormInputs/FormInputs.jsx";
+import { UserCard } from "components/UserCard/UserCard.jsx";
+import Button from "components/CustomButton/CustomButton.jsx";
+
+import avatar from "assets/img/faces/face-3.jpg";
 
 class UserProfile extends Component {
   render() {
@@ -152,11 +153,15 @@ class UserProfile extends Component {
               <UserCard
                 bgImage="https://ununsplash.imgix.net/photo-1431578500526-4d9613015464?fit=crop&fm=jpg&h=300&q=75&w=400"
                 avatar={avatar}
-                name="Alpha Zen"
-                userName="alpha"
+                name="Mike Andrew"
+                userName="michael24"
                 description={
                   <span>
-                    "Trader's corner house"
+                    "Lamborghini Mercy
+                    <br />
+                    Your chick she so thirsty
+                    <br />
+                    I'm in that two seat Lambo"
                   </span>
                 }
                 socials={

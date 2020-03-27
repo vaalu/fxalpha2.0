@@ -21,13 +21,6 @@ import cx from "classnames";
 import PropTypes from "prop-types";
 
 class CustomButton extends Component {
-  constructor(props, context) {
-    super(props, context)
-    this.handleClick = this.handleClick.bind(this)
-  }
-  handleClick(){
-    console.log("I am clicked");
-  }
   render() {
     const { fill, simple, pullRight, round, block, ...rest } = this.props;
 

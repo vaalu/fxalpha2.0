@@ -17,26 +17,9 @@
 */
 import React, { Component } from "react";
 import { Row, Col } from "react-bootstrap";
-import DashboardStore from '../../redux/store/DashboardStore'
-import { DashboardActions } from '../../redux/actions/DashboardActions'
 
-const handleClick = (evt) => {
-  DashboardStore.dispatch(DashboardActions.statCardRefreshEquities(true))
-}
-const doINeedRefresh = (statsIcon, statsIconText, isRefreshRequired) => {
-  if(isRefreshRequired) {
-    return <div onClick={handleClick} >
-        {statsIcon} <span style={{fontSize:'12px'}}>&nbsp;{statsIconText}</span>&nbsp;<i style={{cursor:'pointer'}} className="pe-7s-refresh-2 text-success" />
-      </div>
-  } else {
-    return <div className="stats">
-              {statsIcon} {statsIconText} 
-            </div>
-  }
-}
 export class StatsCard extends Component {
   render() {
-    let content = doINeedRefresh(this.props.statsIcon, this.props.statsIconText, this.props.isRefreshRequired)
     return (
       <div className="card card-stats">
         <div className="content">
@@ -55,7 +38,9 @@ export class StatsCard extends Component {
           </Row>
           <div className="footer">
             <hr />
-            {content}
+            <div className="stats">
+              {this.props.statsIcon} {this.props.statsIconText}
+            </div>
           </div>
         </div>
       </div>

@@ -19,10 +19,10 @@
 import React, { Component } from "react";
 import Toggle from "react-toggle";
 
-import imagine1 from "../../assets/img/sidebar-1.jpg";
-import imagine2 from "../../assets/img/sidebar-2.jpg";
-import imagine3 from "../../assets/img/sidebar-3.jpg";
-import imagine4 from "../../assets/img/sidebar-4.jpg";
+import imagine1 from "assets/img/sidebar-1.jpg";
+import imagine2 from "assets/img/sidebar-2.jpg";
+import imagine3 from "assets/img/sidebar-3.jpg";
+import imagine4 from "assets/img/sidebar-4.jpg";
 
 class FixedPlugin extends Component {
   constructor(props) {

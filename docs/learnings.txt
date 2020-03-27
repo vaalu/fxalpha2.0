@@ -9,3 +9,5 @@ You may serve it with a static server:
 Find out more about deployment here:
 
   https://bit.ly/CRA-deploy
+  
+ https://stackoverflow.com/questions/53918571/cra-2-0-w-typescript-overrides-my-tsconfig-json-due-to-implementation-limitation

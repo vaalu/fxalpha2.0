@@ -19,16 +19,6 @@ import React, { Component } from "react";
 import { NavItem, Nav, NavDropdown, MenuItem } from "react-bootstrap";
 
 class AdminNavbarLinks extends Component {
-
-  constructor(props) {
-    super(props)
-    this.state = {
-    }
-  }
-  handleLogout = (evt) => {
-    const { keycloak } = this.props
-    keycloak.logout()
-  }
   render() {
     const notification = (
       <div>
@@ -79,7 +69,7 @@ class AdminNavbarLinks extends Component {
             <MenuItem divider />
             <MenuItem eventKey={2.5}>Separated link</MenuItem>
           </NavDropdown>
-          <NavItem eventKey={3} href="#" onClick={e => this.handleLogout(e)} >
+          <NavItem eventKey={3} href="#">
             Log out
           </NavItem>
         </Nav>

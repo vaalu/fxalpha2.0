@@ -16,65 +16,55 @@
 
 */
 import React, { Component } from "react";
-import Checkbox from "../CustomCheckbox/CustomCheckbox.jsx";
-import ScripsData from '../../views/data/ScripsData'
-import DashboardStore from '../../redux/store/DashboardStore'
+import { Tooltip, OverlayTrigger } from "react-bootstrap";
+import Checkbox from "components/CustomCheckbox/CustomCheckbox.jsx";
+import Button from "components/CustomButton/CustomButton.jsx";
 
 export class Tasks extends Component {
-
   handleCheckbox = event => {
     const target = event.target;
     console.log(event.target);
     this.setState({
-      [target.name]: target.checked,
-      niftyScrips: [],
-      isConnected:[]
+      [target.name]: target.checked
     });
   };
-
-  async fetchNifty() {
-    await ScripsData().then(result => {
-      result.scrips.forEach(item => (item.isChecked = true))
-      this.setState({
-        niftyScrips : result.scrips
-      })
-    })
-    console.log('Nifty 50 Stocks: ', this.state.niftyScrips.length)
-  }
-  componentWillMount() {
-    DashboardStore.subscribe(() => {
-      this.setState({
-        niftyScrips : []
-      })
-      // console.log('Refreshing scripts: ', DashboardStore.getState().refresh())
-      if(DashboardStore.getState().refresh()) {
-        this.fetchNifty()
-      }
-    })
-  }
-  componentDidMount(){
-    this.fetchNifty()
-  }
   render() {
-    const tasks_title = this.state ? this.state.niftyScrips ? this.state.niftyScrips : [] : []
+    const edit = <Tooltip id="edit_tooltip">Edit Task</Tooltip>;
+    const remove = <Tooltip id="remove_tooltip">Remove</Tooltip>;
+    const tasks_title = [
+      'Sign contract for "What are conference organizers afraid of?"',
+      "Lines From Great Russian Literature? Or E-mails From My Boss?",
+      "Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroi",
+      "Create 4 Invisible User Experiences you Never Knew About",
+      'Read "Following makes Medium better"',
+      "Unfollow 5 enemies from twitter"
+    ];
     var tasks = [];
-    tasks.push(
-      <tr>
-        <td>Live</td>
-        <td>Company Name</td>
-        <td className="td-actions text-right">Symbol</td>
-        <td className="td-actions text-right">Instrument ID</td>
-      </tr>
-    )
+    var number;
     for (var i = 0; i < tasks_title.length; i++) {
+      number = "checkbox" + i;
       tasks.push(
         <tr key={i}>
           <td>
-            <Checkbox number={tasks_title[i].zid} isChecked={tasks_title[i].isChecked} />
+            <Checkbox
+              number={number}
+              isChecked={i === 1 || i === 2 ? true : false}
+            />
           </td>
-          <td>{tasks_title[i].company}</td>
-          <td className="td-actions text-right">{tasks_title[i].symbol}</td>
-          <td className="td-actions text-right">{tasks_title[i].instrument_id}</td>
+          <td>{tasks_title[i]}</td>
+          <td className="td-actions text-right">
+            <OverlayTrigger placement="top" overlay={edit}>
+              <Button bsStyle="info" simple type="button" bsSize="xs">
+                <i className="fa fa-edit" />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger placement="top" overlay={remove}>
+              <Button bsStyle="danger" simple type="button" bsSize="xs">
+                <i className="fa fa-times" />
+              </Button>
+            </OverlayTrigger>
+          </td>
         </tr>
       );
     }

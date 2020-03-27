@@ -45,7 +45,6 @@ class Header extends Component {
     document.body.appendChild(node);
   }
   render() {
-    const { keycloak } = this.props
     return (
       <Navbar fluid>
         <Navbar.Header>
@@ -55,7 +54,7 @@ class Header extends Component {
           <Navbar.Toggle onClick={this.mobileSidebarToggle} />
         </Navbar.Header>
         <Navbar.Collapse>
-          <AdminNavbarLinks keycloak={ keycloak } />
+          <AdminNavbarLinks />
         </Navbar.Collapse>
       </Navbar>
     );

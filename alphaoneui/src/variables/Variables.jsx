@@ -20,7 +20,8 @@
 // // // For notifications
 // //
 //
-var defaultWidth =
+// @ts-ignore
+const defaultWidth =
   window.screen.width > 768
     ? (window.screen.width * 1) / 3
     : window.screen.width;
@@ -493,7 +494,7 @@ const iconsArray = [
 //
 // Data for Pie Chart
 var dataPie = {
-  labels: ["20%", "20%", "40%"],
+  labels: ["40%", "20%", "40%"],
   series: [40, 20, 40]
 };
 var legendPie = {
