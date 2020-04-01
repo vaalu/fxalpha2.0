@@ -25,14 +25,14 @@ client = boto3.client(
 )
 response = client.list_buckets()
 
-for bucket in response['Buckets']:
-	print bucket["Name"]
+# for bucket in response['Buckets']:
+# 	print bucket["Name"]
 
 def get_latest_artifact(bucket, prefix, saving_file_name):
 	uiartifacts = client.list_objects(Bucket=bucket, Prefix=prefix)
 	uiartifact_contents = uiartifacts['Contents']
 	latest_artifact = sorted(uiartifact_contents, key=lambda x: x['LastModified'], reverse=True)[0]
-	print 'Latest build artifact: %s'%(latest_artifact['Key'])
+	# print 'Latest build artifact: %s'%(latest_artifact['Key'])
 	client.download_file(bucket, latest_artifact['Key'], saving_file_name)
 
 def prepare_download_path(download_loc):
@@ -46,7 +46,7 @@ except OSError as e:
 	print 'Directory already present (or) Error while creating directory'
 
 localpath_ui=prepare_download_path('alphaoneui.zip')
-localpath_grapql=prepare_download_path('alphaonegraphql.zip')
+localpath_graphql=prepare_download_path('alphaonegraphql.zip')
 localpath_py=prepare_download_path('alphaonepy.zip')
 
 def prepare_artifacts():
@@ -66,7 +66,7 @@ def extract_artifacts():
 	with ZipFile(localpath_ui) as zipObj:
 		zipObj.extractall(loc)
 	print 'Extracting artifacts: alphaonegraphql: %s'%(datetime.now())
-	with ZipFile(localpath_grapql) as zipObj:
+	with ZipFile(localpath_graphql) as zipObj:
 		zipObj.extractall(loc)
 	print 'Extracting artifacts: alphaonepy: %s'%(datetime.now())
 	with ZipFile(localpath_py) as zipObj:
