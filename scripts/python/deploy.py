@@ -2,9 +2,10 @@
 import configparser
 import boto3
 import botocore
-from datetime import datetime
 import pytz
 import os
+import json
+from datetime import datetime
 from zipfile import ZipFile
 
 config = configparser.ConfigParser()
@@ -13,10 +14,21 @@ config.read('aws.config.properties')
 accessKey = config.get('AWS', 'aws.access.key')
 secretKey = config.get('AWS', 'aws.secret.key')
 bucket_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.bucket')
+
 module_ui_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.ui')
 module_graphql_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.graphql')
 module_py_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.py')
+
 deploy_location = config.get('DEPLOYMENT', 'deploy.artifact.local.path')
+
+security_server = config.get('SECURITY', 'deploy.security.server')
+security_realm = config.get('SECURITY', 'deploy.security.realm')
+
+alice_clientid = config.get('ALICE', 'deploy.alice.clientid')
+alice_user = config.get('ALICE', 'deploy.alice.user')
+alice_client_secret = config.get('ALICE', 'deploy.alice.client.secret')
+alice_client_password = config.get('ALICE', 'deploy.alice.client.password')
+
 
 client = boto3.client(
     's3',
@@ -73,9 +85,38 @@ def extract_artifacts():
 		zipObj.extractall(loc)
 	print 'Extracting artifacts: ended: %s'%(datetime.now())
 
+def update_properties():
+	print 'Updating the properties: %s'%(datetime.now())
+	keycloak_json_file = loc + 'alphaoneui/build/keycloak.json'
+	print 'JSON File location: %s'%(keycloak_json_file)
+
+	keycloak_json = {}
+	with open(keycloak_json_file, 'r+') as keycloak_file:
+		keycloak_json = json.load(keycloak_file)
+		keycloak_json['realm']=security_realm
+		keycloak_json['auth-server-url']=security_server
+		keycloak_file.close()
+	print keycloak_json
+	with open(keycloak_json_file, 'w+') as keycloak_file:
+		json.dump(keycloak_json, keycloak_file)
+		keycloak_file.close()
+	print 'Completed updating properties: %s'%(datetime.now())
+	alice_props = loc + 'AlicePy/application.config.properties'
+	alice_config = configparser.ConfigParser()
+	alice_config.read(alice_props)
+	
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.id', alice_clientid)
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.user', alice_user)
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.secret', alice_client_secret)
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.password', alice_client_password)
+	
+	with open(alice_props, 'w+') as alice_file:
+		alice_config.write(alice_file)
+		alice_file.close()
+
 prepare_artifacts()
 extract_artifacts()
-
+update_properties()
 
 
 
