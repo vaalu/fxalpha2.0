@@ -58,10 +58,10 @@ def prepare_artifacts():
 	
 	print 'Downloading artifacts: alphaonepy %s'%(datetime.now())
 	get_latest_artifact(bucket_path, module_py_path, localpath_py)
-	print 'Downloading artifacts ended %s'%(datetime.now())
+	print 'Downloading artifacts: ended %s'%(datetime.now())
 
 def extract_artifacts():
-	print 'Extracting artifacts in appropriate locations %s'%(datetime.now())
+	print 'Extracting artifacts: in appropriate locations %s'%(datetime.now())
 	print 'Extracting artifacts: alphaoneui: %s'%(datetime.now())
 	with ZipFile(localpath_ui) as zipObj:
 		zipObj.extractall(loc)
