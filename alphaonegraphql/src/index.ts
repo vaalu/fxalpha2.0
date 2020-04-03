@@ -18,7 +18,10 @@ printMe()
 
 const server = new ApolloServer({
 	context, 
-	cors:false,
+	cors:{
+		optionsSuccessStatus:200, 
+		origin:'*'
+	},
 	debug:APOLLO_DEBUG, 
 	introspection:APOLLO_INTROSPECTION, 
 	playground:APOLLO_PLAYGROUND, 
