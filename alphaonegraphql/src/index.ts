@@ -1,7 +1,6 @@
 import { ApolloServer, mergeSchemas } from 'apollo-server'
 import 'dotenv-safe/config'
-import AppModule from './modules';
-
+import AppModule from './modules'
 
 const APOLLO_INTROSPECTION = process.env.APOLLO_INTROSPECTION === "true"
 const APOLLO_PLAYGROUND = process.env.APOLLO_PLAYGROUND === "true"
@@ -19,13 +18,13 @@ printMe()
 
 const server = new ApolloServer({
 	context, 
+	cors:false,
 	debug:APOLLO_DEBUG, 
 	introspection:APOLLO_INTROSPECTION, 
 	playground:APOLLO_PLAYGROUND, 
 	schema:mergeSchemas({
 		schemas: [ schema ]
-	}), 
-	
+	})
 });
 
 server.listen().then(({ url }) => {
