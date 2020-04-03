@@ -1,0 +1,5 @@
+pytz
+boto3
+configparser
+botocore
+awscli

@@ -1,0 +1,17 @@
+scalar Date
+
+type Query {
+	getCommodities : CScripData!
+}
+
+type CScripData {
+	count: Int,
+	scrips: [CommoditiesScrip!]!
+}
+ 
+type CommoditiesScrip {
+	instrument : String, 
+	id : String, 
+	token : String, 
+	date:Date
+}

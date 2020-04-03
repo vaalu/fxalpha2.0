@@ -1,0 +1,22 @@
+scalar Date
+
+type Query {
+	aliceProfile : AliceProfile, 
+	aliceConnect(token:String!) : AliceProfile,
+	aliceAntCommodityScrips:[AliceCommoditiesScips!]!
+}
+type AliceProfile {
+	info:String
+}
+type AntScrip {
+	company : String, 
+	industry : String, 
+	isin : String, 
+	symbol : String, 
+	date:Date
+}
+type AliceCommoditiesScips {
+	instrument : String, 
+	id : String,
+	token : String
+}

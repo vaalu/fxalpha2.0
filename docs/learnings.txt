@@ -1,0 +1,13 @@
+https://scalac.io/user-authentication-keycloak-1/
+to serve the build folder from a static server, use serve package in nodejs.
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://bit.ly/CRA-deploy
+  
+ https://stackoverflow.com/questions/53918571/cra-2-0-w-typescript-overrides-my-tsconfig-json-due-to-implementation-limitation
