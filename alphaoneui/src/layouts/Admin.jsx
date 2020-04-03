@@ -22,7 +22,6 @@ import NotificationSystem from "react-notification-system";
 import AdminNavbar from "components/Navbars/AdminNavbar";
 import Footer from "components/Footer/Footer";
 import Sidebar from "components/Sidebar/Sidebar";
-import FixedPlugin from "components/FixedPlugin/FixedPlugin.jsx";
 
 import { style } from "variables/Variables.jsx";
 
@@ -60,6 +59,8 @@ class Admin extends Component {
       default:
         break;
     }
+    /* 
+    console.log('Level chosen: ', level)
     this.state._notificationSystem.addNotification({
       title: <span data-notify="icon" className="pe-7s-gift" />,
       message: (
@@ -71,7 +72,8 @@ class Admin extends Component {
       level: level,
       position: position,
       autoDismiss: 15
-    });
+    }); 
+    */
   };
   getRoutes = routes => {
     return routes.map((prop, key) => {
@@ -142,7 +144,9 @@ class Admin extends Component {
       default:
         break;
     }
-    _notificationSystem.addNotification({
+    
+    console.log('Level chosen: ', level, _notificationSystem)
+    /* _notificationSystem.addNotification({
       title: <span data-notify="icon" className="pe-7s-gift" />,
       message: (
         <div>
@@ -153,7 +157,7 @@ class Admin extends Component {
       level: level,
       position: "tr",
       autoDismiss: 15
-    });
+    }); */
   }
   componentDidUpdate(e) {
     if (
@@ -170,6 +174,8 @@ class Admin extends Component {
     }
   }
   render() {
+    console.log('Keycloak Props: ', this.props)
+    const { keycloak } = this.props
     return (
       <div className="wrapper">
         <NotificationSystem ref="notificationSystem" style={style} />
@@ -179,10 +185,12 @@ class Admin extends Component {
         <div id="main-panel" className="main-panel" ref="mainPanel">
           <AdminNavbar
             {...this.props}
+            keycloak={ keycloak }
             brandText={this.getBrandText(this.props.location.pathname)}
           />
           <Switch>{this.getRoutes(routes)}</Switch>
           <Footer />
+          {/* 
           <FixedPlugin
             handleImageClick={this.handleImageClick}
             handleColorClick={this.handleColorClick}
@@ -192,7 +200,7 @@ class Admin extends Component {
             mini={this.state["mini"]}
             handleFixedClick={this.handleFixedClick}
             fixedClasses={this.state.fixedClasses}
-          />
+          /> */}
         </div>
       </div>
     );

@@ -153,15 +153,11 @@ class UserProfile extends Component {
               <UserCard
                 bgImage="https://ununsplash.imgix.net/photo-1431578500526-4d9613015464?fit=crop&fm=jpg&h=300&q=75&w=400"
                 avatar={avatar}
-                name="Mike Andrew"
-                userName="michael24"
+                name="Alpha Zen"
+                userName="alpha"
                 description={
                   <span>
-                    "Lamborghini Mercy
-                    <br />
-                    Your chick she so thirsty
-                    <br />
-                    I'm in that two seat Lambo"
+                    "Trader's corner house"
                   </span>
                 }
                 socials={

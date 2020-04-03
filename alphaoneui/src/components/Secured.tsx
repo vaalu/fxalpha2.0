@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/css/animate.min.css";
-import "../assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0";
+import "../assets/sass/light-bootstrap-dashboard-react.scss";
 import "../assets/css/demo.css";
 import "../assets/css/pe-icon-7-stroke.css";
 import AdminLayout from "../layouts/Admin.jsx";
@@ -22,20 +22,26 @@ class Secured extends Component <{}, { keycloak:any, authenticated:boolean }> {
   componentDidMount() {
 	  const keycloak = KEYCLOAK_JSON
 	  keycloak.init({onLoad: 'login-required'}).success( (authenticated:any) => {
-		  this.setState({ keycloak: keycloak, authenticated: authenticated })
+		  console.log('Authentication result: ', authenticated)
+		  this.setState({
+			  keycloak:keycloak, 
+			  authenticated:authenticated
+		  })
+		  // this.setState({ keycloak: keycloak, authenticated: authenticated })
 	  })
   }
 
   render() {
 	  if (this.state.keycloak) {
-		  console.log('Keycloak state')
+		  console.log('Keycloak state', this.state)
+		  const { keycloak } = this.state
 		  if (this.state.authenticated) {
 			  return (
 				  <>
 					<BrowserRouter>
 						<Switch>
-							<Route path="/admin" render={(props:any) => <AdminLayout {...props} />} />
-							<Redirect from="/" to="/admin/dashboard" />
+							<Route path="/admin" render={(props:any) => <AdminLayout {...props} keycloak={keycloak}/>} />
+							<Redirect from="/" to={{pathname:'/admin/dashboard'}} />
 						</Switch>
 					</BrowserRouter>,
 					document.getElementById("root")

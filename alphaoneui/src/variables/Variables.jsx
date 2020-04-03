@@ -494,7 +494,7 @@ const iconsArray = [
 //
 // Data for Pie Chart
 var dataPie = {
-  labels: ["40%", "20%", "40%"],
+  labels: ["20%", "20%", "40%"],
   series: [40, 20, 40]
 };
 var legendPie = {

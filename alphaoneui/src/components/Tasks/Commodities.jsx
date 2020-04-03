@@ -16,51 +16,51 @@
 
 */
 import React, { Component } from "react";
-import Checkbox from "components/CustomCheckbox/CustomCheckbox.jsx";
-import ScripsData from '../../views/data/ScripsData'
+import Checkbox from "../CustomCheckbox/CustomCheckbox.jsx";
+import CommoditiesData from '../../views/data/CommoditiesData'
 import DashboardStore from '../../redux/store/DashboardStore'
 
-export class Tasks extends Component {
+export class Commodities extends Component {
+
   handleCheckbox = event => {
     const target = event.target;
     console.log(event.target);
     this.setState({
       [target.name]: target.checked,
-      niftyScrips: [],
+      commodities: [],
       isConnected:[]
     });
   };
-  async fetchNifty() {
-    await ScripsData().then(result => {
-      console.log('ScripsData: ', result)
-      result.scrips.forEach(item => (item.isChecked = true))
+
+  async fetchCommodities() {
+    await CommoditiesData().then(commodities => {
+      commodities.forEach(item => (item.isChecked = true))
       this.setState({
-        niftyScrips : result.scrips
+        commodities : commodities
       })
     })
-    // console.log('Nifty 50 Stocks: ', this.state.niftyScrips.length)
   }
   componentWillMount() {
     DashboardStore.subscribe(() => {
       this.setState({
-        niftyScrips : []
+        commodities : []
       })
-      // console.log('Refreshing scripts: ', DashboardStore.getState().refresh())
+      console.log('Refreshing scripts: ', DashboardStore.getState().refresh())
       if(DashboardStore.getState().refresh()) {
-        this.fetchNifty()
+        this.fetchCommodities()
       }
     })
   }
   componentDidMount(){
-    this.fetchNifty()
+    this.fetchCommodities()
   }
   render() {
-    const tasks_title = this.state ? this.state.niftyScrips ? this.state.niftyScrips : [] : []
+    const tasks_title = this.state ? this.state.commodities ? this.state.commodities : [] : []
     var tasks = [];
     tasks.push(
       <tr>
         <td>Live</td>
-        <td>Company Name</td>
+        <td>Instrument</td>
         <td className="td-actions text-right">Symbol</td>
         <td className="td-actions text-right">Instrument ID</td>
       </tr>
@@ -71,9 +71,9 @@ export class Tasks extends Component {
           <td>
             <Checkbox number={tasks_title[i].zid} isChecked={tasks_title[i].isChecked} />
           </td>
-          <td>{tasks_title[i].company}</td>
-          <td className="td-actions text-right">{tasks_title[i].symbol}</td>
-          <td className="td-actions text-right">{tasks_title[i].instrument_id}</td>
+          <td>{tasks_title[i].instrument}</td>
+          <td className="td-actions text-right">{tasks_title[i].id}</td>
+          <td className="td-actions text-right">{tasks_title[i].token}</td>
         </tr>
       );
     }
@@ -81,4 +81,4 @@ export class Tasks extends Component {
   }
 }
 
-export default Tasks;
+export default Commodities;
