@@ -1,13 +1,13 @@
+import config from './env.json'
 import keycloak from 'keycloak-js'
-import kc from './keycloak.json'
 
 export const KEYCLOAK_JSON = keycloak({
-	realm:kc['realm'], 
-	clientId:kc['resource'], 
-	url:kc['auth-server-url']
+	realm:config['realm'], 
+	clientId:config['resource'], 
+	url:config['auth-server-url']
 })
-export const APOLLO_SERVER = 'http://localhost:4000'
-export const KAFKA_SERVER = 'localhost:9092'
+export const APOLLO_SERVER = config['apollo-server']
+export const KAFKA_SERVER = config['kafka-server']
 export const DATE_CONSTANTS = {
 	months : [	"Jan", "Feb", "Mar", "Apr", 
 				"May", "Jun", "Jul", "Aug", 
