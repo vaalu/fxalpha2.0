@@ -59,8 +59,8 @@ class Admin extends Component {
       default:
         break;
     }
-    /* 
     console.log('Level chosen: ', level)
+    /* 
     this.state._notificationSystem.addNotification({
       title: <span data-notify="icon" className="pe-7s-gift" />,
       message: (

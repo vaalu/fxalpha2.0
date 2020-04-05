@@ -42,7 +42,7 @@ export default class Nifty50 {
 		const tscripts = new TradingScrips()
 		const allScrips = await tscripts.getScrips()
 
-		await niftyScrips.scrips.forEach((element:any) => {
+		niftyScrips.scrips.forEach((element:any) => {
 			const dateVal = (new Date()).toISOString().slice(0, 10) 
 			element.date = dateVal
 			

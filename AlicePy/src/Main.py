@@ -2,6 +2,7 @@
 import json
 from flask import Flask, request
 from modules.AliceWebSocket import AliceWebSocket
+from modules.EquitiesData import EquitiesData
 import configparser
 from cryptography.fernet import Fernet
 
@@ -11,10 +12,13 @@ except ImportError:
 	import _thread as thread
 import time
 
-
 print('Fetching access token from alice blue ant API')
 config = configparser.ConfigParser()
 config.read('application.config.properties')
+
+nifty50_url = config.get('TRADING_INSTRUMENTS', 'nifty50.url')
+static_csv = config.get('TRADING_INSTRUMENTS', 'static.equities')
+nifty50 = EquitiesData().fetchNifty50(static_csv, nifty50_url)
 
 aliceAnt = {
 	'CLIENT_ID' : config.get('ALICE_ANT_OAUTH2', 'alice.ant.client.id'), 
@@ -29,7 +33,7 @@ aliceAnt = {
 	'URL_WSS' : config.get('ALICE_ANT_SERVER', 'alice.ant.url.wss'), 
 	'ALICE_API_BASE': config.get('ALICE_ANT_API', 'alice.ant.api.base'),
 	'ALICE_PROFILE' : config.get('ALICE_ANT_API', 'alice.ant.api.profile'),
-	'NIFTY_50_STOCKS':json.loads(config.get('TRADING_INSTRUMENTS', 'instruments.nifty.50')),
+	'NIFTY_50_STOCKS':nifty50,
 	'COMMODITIES':json.loads(config.get('TRADING_INSTRUMENTS', 'instruments.commodities'))
 }
 
