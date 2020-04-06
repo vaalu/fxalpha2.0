@@ -1,9 +1,9 @@
 import json
 from kafka import KafkaConsumer
-topic_name='3499'
+topic_name='20374'
 consumer = KafkaConsumer(	topic_name, 
 							auto_offset_reset='latest',
-                            bootstrap_servers=['localhost:9092'], 
+                            bootstrap_servers=['alpha.jeani.in:9092'], 
 							api_version=(0, 10), 
 							consumer_timeout_ms=1000)
 while True:
