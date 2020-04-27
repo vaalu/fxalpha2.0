@@ -15,7 +15,21 @@ export default class AliceConnect {
 			info:'Profile information is being fetched.'
 		}
 	}
-	public connect = (token:string) => {
+	public connect = () => {
+		console.log('Connecting to alice ant.')
+		const wsUtilityUrl = process.env.ALICE_WS_UTILITY_URL + '/instruments'
+		console.log('Establishinig websocket url connection with alice utility: ', wsUtilityUrl)
+		
+		fetch(wsUtilityUrl!)
+			.then( res => res.text() )
+			.then(body => {
+				console.log('Result from the ws utility: ', body)
+			})
+		return {
+			info:'Alice ant connected.'
+		}
+	}
+	public connectLegacy = (token:string) => {
 		console.log('Connecting to alice ant.', token)
 		const wsUtilityUrl = process.env.ALICE_WS_UTILITY_URL + '/' + token
 		console.log('Establishinig websocket url connection with alice utility: ', wsUtilityUrl)

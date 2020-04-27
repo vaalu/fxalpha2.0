@@ -11,3 +11,39 @@ Find out more about deployment here:
   https://bit.ly/CRA-deploy
   
  https://stackoverflow.com/questions/53918571/cra-2-0-w-typescript-overrides-my-tsconfig-json-due-to-implementation-limitation
+ 
+
+Kafka
+advertised.listeners=PLAINTEXT://ec2-54-191-84-122.us-west-2.compute.amazonaws.com:9092
+https://github.com/bkatwal/kafka-solr-sink-connector
+
+Alphavantage
+5U19TJGGJJNLYEIR
+
+Please refer this link to know more: http://antplus.aliceblueonline.com/#introduction
+https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions-enterprise-linux-fedora-and-snap-packages
+
+https://tecadmin.net/install-apache-solr-on-ubuntu/
+https://lucene.apache.org/solr/guide/8_1/basic-authentication-plugin.html#api-entry-point
+
+sudo su - solr -c "/opt/solr/bin/solr create -c test -n data_driven_schema_configs"
+
+https://www.toptal.com/python/beginners-guide-to-concurrency-and-parallelism-in-python
+https://d1i4a15mxbxib1.cloudfront.net/api/plugins/bkatwal/bkatwal-kafka-connect-solr-sink/versions/2.0/bkatwal-bkatwal-kafka-connect-solr-sink-2.0.zip
+
+https://www.tutorialspoint.com/apache_solr/apache_solr_deleting_documents.htm
+<delete> 
+   <query>*:*</query> 
+</delete>
+
+https://www.edureka.co/community/39289/need-help-installing-flume-on-windows
+http://apachemirror.wuchna.com/flume/1.9.0/apache-flume-1.9.0-bin.tar.gz
+
+https://stackoverflow.com/questions/35067940/any-idea-about-how-to-install-flume-with-hadoop-in-windows
+https://towardsdatascience.com/apache-kafka-and-flume-installation-guide-import-data-from-kafka-to-hdfs-c908b0df034c
+
+bin\flume-ng agent -n flume1 -c conf -f flume.conf — Dflume.root.logger=DEBUG,console
+
+bin\flume-ng agent -conf conf -conf-file conf/flume-conf.properties --name agent1 -property "flume.root.logger=INFO,console"
+
+bin\flume-ng agent -conf conf -conf-file conf/flume.conf --name flume1 -property "flume.root.logger=INFO,console"

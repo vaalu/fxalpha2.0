@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+import configparser
+from alice_blue import *
+
+config = configparser.ConfigParser()
+config.read('application.config.properties')
+
+aliceAnt = {
+	'CLIENT_USER' : config.get('ALICE_ANT_OAUTH2', 'alice.ant.client.user'), 
+	'CLIENT_SECRET' : config.get('ALICE_ANT_OAUTH2', 'alice.ant.client.secret'), 
+	'CLIENT_PASSWORD' : config.get('ALICE_ANT_OAUTH2', 'alice.ant.client.password')
+}
+
+class AliceUtil():
+	retry_count = 0
+	def fetchTokenFromFile(self):
+		alice_token = ''
+		try:
+			with open('alice.token', 'r') as file:
+				lines = file.readlines()
+				for token in lines:
+					alice_token = token
+				file.close()
+		except:
+			print('Token file does not exist')
+		return alice_token
+
+	def rewriteToken(self, token):
+		# print('Token obtained %s'%(token))
+		try:
+			with open('alice.token', 'w') as file:
+				file.write(token)
+				file.close()
+		except:
+			print('Unable to create token file')
+
+	def fetchTokenIfNotExists(self):
+		alice_token = self.fetchTokenFromFile()
+		# print('Token fetched: %s'%(alice_token))
+		try:
+			print('Checking access token')
+			alice = AliceBlue(	username=aliceAnt['CLIENT_USER'], 
+								password=aliceAnt['CLIENT_PASSWORD'], 
+								access_token=alice_token, 
+								master_contracts_to_download=['NSE', 'MCX'])
+			print('Valid access token')
+		except:
+			self.retry_count=self.retry_count+1
+			if self.retry_count < 5:
+				print('Invalid access token. Retrying %i'%(self.retry_count))
+				alice_token = AliceBlue.login_and_get_access_token(	username=aliceAnt['CLIENT_USER'], 
+																		password=aliceAnt['CLIENT_PASSWORD'], 
+																		twoFA='1',  
+																		api_secret=aliceAnt['CLIENT_SECRET'])
+				if alice_token != '':
+					self.rewriteToken(alice_token)
+					self.fetchTokenIfNotExists()
+			else: 
+				print('Unable to get new token. Abandoning request.')
+			
+		finally:
+			print('Token obtained...')
+		return alice_token

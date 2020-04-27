@@ -3,6 +3,7 @@ from modules.MarketData import CliMarketdataRes
 import websocket
 import json
 from kafka import KafkaProducer
+import urllib 
 
 producer = KafkaProducer(bootstrap_servers='localhost:9092')
 producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'))
@@ -26,6 +27,9 @@ class AliceWebSocket():
 	ws = None
 	websocketUrl = ''
 	segment=1
+	instruments=list([])
+	websocket_closed=False
+	retry_count = 0
 	def __init__(self, token='', websocketUrl='', segment=1, instruments=[[1,1]]):
 		self.token=token
 		self.websocketUrl=websocketUrl
@@ -36,6 +40,7 @@ class AliceWebSocket():
 	
 	def initialize(self, instruments=[[1,1]]):
 		websocket.enableTrace(False)
+		self.instruments=instruments
 		wssurl = '%s%s'%(self.websocketUrl,self.token)
 		
 		ws = websocket.WebSocketApp(wssurl,
@@ -51,14 +56,15 @@ class AliceWebSocket():
 		ws.on_open = on_open
 		ws.run_forever()
 		self.ws = ws
+		while True:
+			self.ws.run_forever()
 
 	def on_message(ws, message):
 		# print('Message recieved:', message)
 		marketdataPkt = CliMarketdataRes()
 		if marketdataPkt.mode == 0 and len(message) != 86:
-			print('heartbeat')
-			ws.close()
-			return
+			print('...heartbeat...')
+			# return
 		global last_traded_price
 		marketdataPkt.get_CliMarketdataRes_Instruct(message)
 		last_traded_price = marketdataPkt.last_traded_price
@@ -113,6 +119,12 @@ class AliceWebSocket():
 	
 	def on_error(ws, error):
 		print('Error occurred:', error)
+		thread.exit()
+		urllib.request.urlopen('http://localhost:5000/')
 	
 	def on_close(ws):
 		print('...Feed data socket closed...')
+		websocket_closed=True
+		print('Retrying again... %i'%(self.retry_count))
+		thread.exit()
+		urllib.request.urlopen('http://localhost:5000/')
