@@ -28,7 +28,7 @@ alice_clientid = config.get('ALICE', 'deploy.alice.clientid')
 alice_user = config.get('ALICE', 'deploy.alice.user')
 alice_client_secret = config.get('ALICE', 'deploy.alice.client.secret')
 alice_client_password = config.get('ALICE', 'deploy.alice.client.password')
-alphavantage_key =  config.get('ALICE', 'alphavantage.key')
+alphavantage_key =  config.get('ALICE', 'deploy.alphavantage.key')
 
 
 client = boto3.client(
