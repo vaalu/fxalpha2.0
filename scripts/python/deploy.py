@@ -28,6 +28,7 @@ alice_clientid = config.get('ALICE', 'deploy.alice.clientid')
 alice_user = config.get('ALICE', 'deploy.alice.user')
 alice_client_secret = config.get('ALICE', 'deploy.alice.client.secret')
 alice_client_password = config.get('ALICE', 'deploy.alice.client.password')
+alphavantage_key =  config.get('ALICE', 'alphavantage.key')
 
 
 client = boto3.client(
@@ -109,6 +110,7 @@ def update_properties():
 	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.user', alice_user)
 	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.secret', alice_client_secret)
 	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.password', alice_client_password)
+	alice_config.set('TRADING_INSTRUMENTS', 'alphavantage.key', alphavantage_key)
 	
 	with open(alice_props, 'w+') as alice_file:
 		alice_config.write(alice_file)
