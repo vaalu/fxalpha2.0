@@ -17,6 +17,8 @@ Kafka
 advertised.listeners=PLAINTEXT://ec2-54-191-84-122.us-west-2.compute.amazonaws.com:9092
 https://github.com/bkatwal/kafka-solr-sink-connector
 
+advertised.listeners=PLAINTEXT://alpha.jeani.in:9092
+
 Alphavantage
 5U19TJGGJJNLYEIR
 
@@ -27,6 +29,8 @@ https://tecadmin.net/install-apache-solr-on-ubuntu/
 https://lucene.apache.org/solr/guide/8_1/basic-authentication-plugin.html#api-entry-point
 
 sudo su - solr -c "/opt/solr/bin/solr create -c test -n data_driven_schema_configs"
+
+sudo su - solr -c "/opt/solr/bin/solr create -c ng -n data_driven_schema_configs"
 
 https://www.toptal.com/python/beginners-guide-to-concurrency-and-parallelism-in-python
 https://d1i4a15mxbxib1.cloudfront.net/api/plugins/bkatwal/bkatwal-kafka-connect-solr-sink/versions/2.0/bkatwal-bkatwal-kafka-connect-solr-sink-2.0.zip
@@ -47,3 +51,23 @@ bin\flume-ng agent -n flume1 -c conf -f flume.conf — Dflume.root.logger=DEBUG,
 bin\flume-ng agent -conf conf -conf-file conf/flume-conf.properties --name agent1 -property "flume.root.logger=INFO,console"
 
 bin\flume-ng agent -conf conf -conf-file conf/flume.conf --name flume1 -property "flume.root.logger=INFO,console"
+
+https://hackernoon.com/writing-your-own-sink-connector-for-your-kafka-stack-fa7a7bc201ea
+
+https://askubuntu.com/questions/2368/how-do-i-set-up-a-cron-job
+https://www.digitalocean.com/community/tutorials/how-to-use-cron-to-automate-tasks-ubuntu-1804
+
+https://realpython.com/intro-to-python-threading/
+https://linuxize.com/post/how-to-install-and-configure-redis-on-ubuntu-18-04/
+https://stackoverflow.com/questions/32276493/how-to-store-and-retrieve-a-dictionary-with-redis
+
+https://timestamp.online/article/how-to-convert-timestamp-to-datetime-in-python
+
+Installing solr
+sudo apt-get install default-jdk
+wget http://apachemirror.wuchna.com/lucene/solr/8.5.1/solr-8.5.1.tgz
+tar xzf solr-8.5.1.tgz solr-8.5.1/bin/install_solr_service.sh --strip-components=2
+sudo ./install_solr_service.sh solr-8.5.1.tgz
+
+https://docs.oracle.com/cd/E19623-01/820-6168/file-descriptor-requirements.html
+https://github.com/confluentinc/confluent-kafka-python/issues/535

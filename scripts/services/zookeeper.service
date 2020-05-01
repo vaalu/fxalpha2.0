@@ -1,0 +1,18 @@
+[Unit]
+Description=Zookeeper Server
+After=network.target
+
+[Service]
+Type=forking
+
+Environment=JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
+
+ExecStart=/etc/kafka/kafka-2.4.1/bin/zookeeper-server-start.sh -daemon /etc/kafka/kafka-2.4.1/config/zookeeper.properties
+ExecStop=/etc/kafka/kafka-2.4.1/bin/zookeeper-server-stop.sh
+TimeoutSec=10000
+RemainAfterExit=yes
+
+
+[Install]
+WantedBy=multi-user.target
