@@ -13,15 +13,6 @@ Find out more about deployment here:
  https://stackoverflow.com/questions/53918571/cra-2-0-w-typescript-overrides-my-tsconfig-json-due-to-implementation-limitation
  
 
-Kafka
-advertised.listeners=PLAINTEXT://ec2-54-191-84-122.us-west-2.compute.amazonaws.com:9092
-https://github.com/bkatwal/kafka-solr-sink-connector
-
-advertised.listeners=PLAINTEXT://alpha.jeani.in:9092
-
-Alphavantage
-5U19TJGGJJNLYEIR
-
 Please refer this link to know more: http://antplus.aliceblueonline.com/#introduction
 https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions-enterprise-linux-fedora-and-snap-packages
 
@@ -71,3 +62,5 @@ sudo ./install_solr_service.sh solr-8.5.1.tgz
 
 https://docs.oracle.com/cd/E19623-01/820-6168/file-descriptor-requirements.html
 https://github.com/confluentinc/confluent-kafka-python/issues/535
+
+https://factorpad.com/tech/solr/reference/solr-create-core.html
