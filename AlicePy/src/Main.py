@@ -5,6 +5,7 @@ from modules.AliceWebSocket import AliceWebSocket
 from modules.EquitiesData import EquitiesData
 import configparser
 from cryptography.fernet import Fernet
+import logging 
 
 try:
 	import thread
@@ -36,6 +37,9 @@ aliceAnt = {
 	'NIFTY_50_STOCKS':nifty50,
 	'LEGACY_COMMODITIES':json.loads(config.get('TRADING_INSTRUMENTS', 'legacy.instruments.commodities'))
 }
+logging.basicConfig(	format='%(asctime)s : %(name)s : %(levelname)s : %(message)s', 
+							filename='/var/log/alphapy.log', 
+							level=logging.DEBUG)
 
 class Main():
 	segment=1

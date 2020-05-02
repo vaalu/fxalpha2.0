@@ -4,9 +4,12 @@ import websocket
 import json
 from kafka import KafkaProducer
 import urllib 
+from modules.props.ConfigProps import aliceAnt, AppLogger
 
-producer = KafkaProducer(bootstrap_servers='localhost:9092')
-producer = KafkaProducer(value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+logger = AppLogger()
+
+kafka_server = '%s:%s'%(aliceAnt['KAFKA_URL'], aliceAnt['KAFKA_PORT'])
+producer = KafkaProducer(bootstrap_servers=kafka_server, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
 try:
 	import thread
@@ -34,8 +37,9 @@ class AliceWebSocket():
 		self.token=token
 		self.websocketUrl=websocketUrl
 		self.segment=segment
-		print('Initializing websockets for alice with: %s%s'%(self.websocketUrl, self.token))
-		print('Instruments to be fetched:', instruments)
+		logger.info('Initializing websockets for alice with: %s%s'%(self.websocketUrl, self.token))
+		logger.info('Instruments to be fetched:')
+		logger.info(instruments)
 		self.initialize(instruments)
 	
 	def initialize(self, instruments=[[1,1]]):
@@ -60,38 +64,15 @@ class AliceWebSocket():
 			self.ws.run_forever()
 
 	def on_message(ws, message):
-		# print('Message recieved:', message)
+		# logger.info('Message recieved:', message)
 		marketdataPkt = CliMarketdataRes()
 		if marketdataPkt.mode == 0 and len(message) != 86:
-			print('...heartbeat...')
+			logger.info('...heartbeat...')
 			# return
 		global last_traded_price
 		marketdataPkt.get_CliMarketdataRes_Instruct(message)
 		last_traded_price = marketdataPkt.last_traded_price
-		print('\n')
-		print('exchange_code', marketdataPkt.exchange_code)
 		multiplierValue=multiplier[str(marketdataPkt.exchange_code)]
-		print('Segment multiplier to be fetched:', multiplierValue)
-		
-		print('instrument_token', marketdataPkt.instrument_token)
-		print('last_traded_price', (marketdataPkt.last_traded_price/multiplierValue))
-		print('last_traded_time', marketdataPkt.last_traded_time)
-		print('last_traded_quantity', marketdataPkt.last_traded_quantity)
-		print('trade_volume', marketdataPkt.trade_volume)
-		print('best_bid_price', (marketdataPkt.best_bid_price/multiplierValue))
-		print('best_bid_quantity', marketdataPkt.best_bid_quantity)
-		print('best_ask_price', (marketdataPkt.best_ask_price/multiplierValue))
-		print('best_ask_quantity', marketdataPkt.best_ask_quantity)
-		print('total_buy_quantity', marketdataPkt.total_buy_quantity)
-		print('total_sell_quantity', marketdataPkt.total_sell_quantity)
-		print('average_trade_price', (marketdataPkt.average_trade_price/multiplierValue))
-		print('exchange_timestamp', marketdataPkt.exchange_timestamp)
-		print('open_price', (marketdataPkt.open_price/multiplierValue))
-		print('high_price', (marketdataPkt.high_price/multiplierValue))
-		print('low_price', (marketdataPkt.low_price/multiplierValue))
-		print('close_price', (marketdataPkt.close_price/multiplierValue))
-		print('yearly_high_price', (marketdataPkt.yearly_high_price/multiplierValue))
-		print('yearly_low_price', (marketdataPkt.yearly_low_price/multiplierValue))
 		datum = {
 			'instrument_token':marketdataPkt.instrument_token, 
 			'last_traded_price':(marketdataPkt.last_traded_price/multiplierValue), 
@@ -113,18 +94,19 @@ class AliceWebSocket():
 			'yearly_high_price':(marketdataPkt.yearly_high_price/multiplierValue), 
 			'yearly_low_price':(marketdataPkt.yearly_low_price/multiplierValue)
 		}
+		logger.debug(datum)
 		producer.send(str(marketdataPkt.instrument_token), datum)
 		producer.flush()
 		# data_from_resource_server(access_token)
 	
 	def on_error(ws, error):
-		print('Error occurred:', error)
+		logger.error('Error occurred:', error)
 		thread.exit()
 		urllib.request.urlopen('http://localhost:5000/')
 	
 	def on_close(ws):
-		print('...Feed data socket closed...')
+		logger.info('...Feed data socket closed...')
 		websocket_closed=True
-		print('Retrying again... %i'%(self.retry_count))
+		logger.info('Retrying again... %i'%(self.retry_count))
 		thread.exit()
 		urllib.request.urlopen('http://localhost:5000/')

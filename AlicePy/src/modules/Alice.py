@@ -2,13 +2,14 @@ import json
 import csv
 import requests
 import configparser
+import logging
 from alice_blue import *
 from modules.AliceUtil import AliceUtil
-from modules.props.ConfigProps import aliceAnt
+from modules.props.ConfigProps import aliceAnt, AppLogger
 from modules.AliceWebSocket import AliceWebSocket
 
-
-print('Fetching access token from alice blue ant API')
+logger = AppLogger()
+logger.debug('Fetching access token from alice blue ant API')
 config = configparser.ConfigParser()
 config.read('application.config.properties')
 
@@ -20,11 +21,11 @@ class Alice():
 							access_token=access_token, 
 							master_contracts_to_download=['NSE', 'MCX'])
 	except:
-		print('Unable to fetch token. Abandoning further requests.')
+		logger.debug('Unable to fetch token. Abandoning further requests.')
 		
 	def __init__(self):
-		print('Alice API access:')
-		print('Alice token %s'%(self.access_token))
+		logger.debug('Alice API access:')
+		logger.debug('Alice token %s'%(self.access_token))
 	
 	@classmethod
 	def fetchNifty50(self):
@@ -46,22 +47,17 @@ class Alice():
 	@classmethod
 	def fetchCommoditiesV1(self, instruments=[]):
 		commodities_instr = list([])
-		# for commodity in aliceAnt['COMMODITIES']:
-		#	comm_symbol = '%s APR FUT'%(commodity)
-		#	instr = self.alice.get_instrument_by_symbol(exchange='MCX', symbol=comm_symbol)
-		#	print(instr)
-		#	commodities_instr.append([4, instr.token])
 		instr = self.alice.get_instrument_by_symbol(exchange='MCX', symbol='NATURALGAS MAY FUT')
 		commodities_instr.append([4, instr.token])
 		return commodities_instr
 	
 	@classmethod
 	def fetchNifty50LiveV1(self):
-		print('Establishing websocket connection for instruments ')
+		logger.debug('Establishing websocket connection for instruments ')
 		consolidated_nifty_50_securities = self.fetchNifty50()
 		socket_opened = False
 		def on_message(msg):
-			print(f'Message recieved: {msg}')
+			logger.debug(f'Message recieved: {msg}')
 		def on_open():
 			global socket_opened
 			socket_opened = True
@@ -75,7 +71,7 @@ class Alice():
 
 	@classmethod
 	def fetchNifty50Live(self):
-		print('Establishing websocket connection for instruments ')
+		logger.debug('Establishing websocket connection for instruments ')
 		nifty50_instruments, consolidated_nifty_50_securities = self.fetchNifty50()
 		socket_opened = False
 		wssUrl = '%s?access_token='%(aliceAnt['URL_WSS'])
@@ -85,8 +81,8 @@ class Alice():
 	@classmethod
 	def fetchCommoditiesLive(self):
 		commodities = self.fetchCommoditiesV1()
-		print('Establishing websocket connection for instruments ')
-		print(commodities)
+		logger.debug('Establishing websocket connection for instruments ')
+		logger.debug(commodities)
 		wssUrl = '%s?access_token='%(aliceAnt['URL_WSS'])
 		ws = AliceWebSocket(websocketUrl=wssUrl, token=self.access_token, instruments=commodities)
 		ws.initialize(ws.instruments)
@@ -94,11 +90,11 @@ class Alice():
 	@classmethod
 	def fetchCommoditiesLiveV1(self):
 		commodities = self.fetchCommoditiesV1()
-		print('Establishing websocket connection for instruments ')
-		print(commodities)
+		logger.debug('Establishing websocket connection for instruments ')
+		logger.debug(commodities)
 		socket_opened = False
 		def event_handler_quote_update(message):
-			print(f"quote update {message}")
+			logger.debug(f"quote update {message}")
 		def open_callback():
 			global socket_opened
 			socket_opened = True

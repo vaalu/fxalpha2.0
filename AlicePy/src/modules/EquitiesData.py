@@ -2,15 +2,19 @@
 import csv
 import requests
 import configparser
+import logging 
+from modules.props.ConfigProps import AppLogger
 
 config = configparser.ConfigParser()
 config.read('application.config.properties')
 
 exchange_code_equities=int(config.get('TRADING_INSTRUMENTS', 'exchange.code.equity'))
 
+logger = AppLogger()
+
 class EquitiesData():
 	def __init__(self):
-		print('Nifty 50 equities instrument data to be consolidated')
+		logger.info('Nifty 50 equities instrument data to be consolidated')
 	
 	@classmethod
 	def fetchCollectedEquities(self, collected_csv):
