@@ -64,3 +64,4 @@ https://docs.oracle.com/cd/E19623-01/820-6168/file-descriptor-requirements.html
 https://github.com/confluentinc/confluent-kafka-python/issues/535
 
 https://factorpad.com/tech/solr/reference/solr-create-core.html
+https://timestamp.online/article/how-to-get-current-timestamp-in-python
