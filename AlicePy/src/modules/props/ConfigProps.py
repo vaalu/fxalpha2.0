@@ -58,7 +58,7 @@ logging.log(logging.DEBUG, 'Starting logger')
 app_logger = logging.getLogger('app_logger')
 app_logger.setLevel(default_log_level)
 
-rotating_handler = handlers.RotatingFileHandler(AppProperties['LOG_FILE'], maxBytes=5000000, backupCount=200)
+rotating_handler = handlers.RotatingFileHandler(aliceAnt['LOG_FILE'], maxBytes=5000000, backupCount=200)
 app_logger.addHandler(rotating_handler)
 
 class AppLogger():
