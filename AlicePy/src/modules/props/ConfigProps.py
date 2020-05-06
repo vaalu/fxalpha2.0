@@ -2,6 +2,7 @@
 import json
 import configparser
 import logging
+import logging.handlers as handlers
 
 print('Fetching access token from alice blue ant API')
 config = configparser.ConfigParser()
@@ -54,24 +55,30 @@ logging.basicConfig( format='%(asctime)s : %(levelname)s : %(name)s : %(message)
 					level=default_log_level )
 logging.log(logging.DEBUG, 'Starting logger')
 
+app_logger = logging.getLogger('app_logger')
+app_logger.setLevel(default_log_level)
+
+rotating_handler = handlers.RotatingFileHandler(AppProperties['LOG_FILE'], maxBytes=500000, backupCount=20)
+app_logger.addHandler(rotating_handler)
+
 class AppLogger():
 	def debug(self, msg):
-		logging.log(logging.DEBUG, msg)
+		app_logger.debug(msg)
 		if log_level_config.lower() == "console":
 			print(msg)
 	def error(self, msg):
-		logging.log(logging.ERROR, msg)
+		app_logger.error(msg)
 		if log_level_config.lower() == "console":
 			print(msg)
 	def critical(self, msg):
-		logging.log(logging.CRITICAL, msg)
+		app_logger.critical(msg)
 		if log_level_config.lower() == "console":
 			print(msg)
 	def fatal(self, msg):
-		logging.log(logging.FATAL, msg)
+		app_logger.fatal(msg)
 		if log_level_config.lower() == "console":
 			print(msg)
 	def info(self, msg):
-		logging.log(logging.INFO, msg)
+		app_logger.info(msg)
 		if log_level_config.lower() == "console":
 			print(msg)

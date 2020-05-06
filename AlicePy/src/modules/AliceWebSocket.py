@@ -62,6 +62,7 @@ class AliceWebSocket():
 		self.ws = ws
 		while True:
 			self.ws.run_forever()
+		urllib.request.urlopen('http://localhost:5000/')
 
 	def on_message(ws, message):
 		# logger.info('Message recieved:', message)
