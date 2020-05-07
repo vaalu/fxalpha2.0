@@ -54,7 +54,9 @@ class Alice():
 	@classmethod
 	def fetchNifty50LiveV1(self):
 		logger.debug('Establishing websocket connection for instruments ')
-		consolidated_nifty_50_securities = self.fetchNifty50()
+		nifty50_instruments, consolidated_nifty_50_securities = self.fetchNifty50()
+		logger.debug('Connecting for instruments')
+		logger.debug(nifty50_instruments)
 		socket_opened = False
 		def on_message(msg):
 			logger.debug(f'Message recieved: {msg}')
@@ -63,10 +65,13 @@ class Alice():
 			socket_opened = True
 		self.alice.start_websocket(subscribe_callback=on_message,
                       socket_open_callback=on_open,
-                      run_in_background=True)
+                      run_in_background=False)
 		while(socket_opened==False):
+			print('Socket is not opened')
 			pass
 		self.alice.subscribe(consolidated_nifty_50_securities, LiveFeedType.MARKET_DATA)
+		logger.debug('All subscriptions...')
+		logger.debug(self.alice.get_all_subscriptions())
 		sleep(10)
 
 	@classmethod
@@ -77,6 +82,7 @@ class Alice():
 		wssUrl = '%s?access_token='%(aliceAnt['URL_WSS'])
 		ws = AliceWebSocket(websocketUrl=wssUrl, token=self.access_token, instruments=nifty50_instruments)
 		ws.initialize(ws.instruments)
+		print('Websocket is closed...')
 	
 	@classmethod
 	def fetchCommoditiesLive(self):
@@ -86,6 +92,7 @@ class Alice():
 		wssUrl = '%s?access_token='%(aliceAnt['URL_WSS'])
 		ws = AliceWebSocket(websocketUrl=wssUrl, token=self.access_token, instruments=commodities)
 		ws.initialize(ws.instruments)
+		print('Websocket is closed...')
 	
 	@classmethod
 	def fetchCommoditiesLiveV1(self):

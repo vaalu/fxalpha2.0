@@ -25,14 +25,13 @@ multiplier = {
 	'7':100
 }
 multiplierValue = 1
+
 class AliceWebSocket():
 	token = ''
 	ws = None
 	websocketUrl = ''
 	segment=1
 	instruments=list([])
-	websocket_closed=False
-	retry_count = 0
 	def __init__(self, token='', websocketUrl='', segment=1, instruments=[[1,1]]):
 		self.token=token
 		self.websocketUrl=websocketUrl
@@ -53,23 +52,25 @@ class AliceWebSocket():
 									on_close=self.on_close)
 		def on_open(ws):
 			sub_packet = {"a": "subscribe", "v": instruments, "m": "marketdata" }
-			def run(*args):
+			def run(ws, sub_packet):
 				ws.send(json.dumps(sub_packet))
 				self.ws = ws
-			thread.start_new_thread(run, ())
+				while True:
+					time.sleep(10)
+					hb_packet = {"a": "h", "v": [], "m": ""}
+					ws.send(json.dumps(hb_packet))
+					ws.send(json.dumps(sub_packet))
+			thread.start_new_thread(run, (ws,sub_packet,))
 		ws.on_open = on_open
 		ws.run_forever()
 		self.ws = ws
-		while True:
-			self.ws.run_forever()
-		urllib.request.urlopen('http://localhost:5000/')
 
 	def on_message(ws, message):
 		# logger.info('Message recieved:', message)
 		marketdataPkt = CliMarketdataRes()
 		if marketdataPkt.mode == 0 and len(message) != 86:
 			logger.info('...heartbeat...')
-			# return
+			return
 		global last_traded_price
 		marketdataPkt.get_CliMarketdataRes_Instruct(message)
 		last_traded_price = marketdataPkt.last_traded_price
@@ -101,13 +102,11 @@ class AliceWebSocket():
 		# data_from_resource_server(access_token)
 	
 	def on_error(ws, error):
-		logger.error('Error occurred:', error)
+		logger.error('Error occurred:')
+		logger.error(error)
 		thread.exit()
-		urllib.request.urlopen('http://localhost:5000/')
 	
 	def on_close(ws):
 		logger.info('...Feed data socket closed...')
-		websocket_closed=True
-		logger.info('Retrying again... %i'%(self.retry_count))
+		logger.info('Retrying again...')
 		thread.exit()
-		urllib.request.urlopen('http://localhost:5000/')

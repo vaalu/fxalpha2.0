@@ -51,7 +51,6 @@ if log_level_config != None:
 	default_log_level = log_level[log_level_config.lower()]
 
 logging.basicConfig( format='%(asctime)s : %(levelname)s : %(name)s : %(message)s', 
-					filename=aliceAnt['LOG_FILE'], 
 					level=default_log_level )
 logging.log(logging.DEBUG, 'Starting logger')
 
