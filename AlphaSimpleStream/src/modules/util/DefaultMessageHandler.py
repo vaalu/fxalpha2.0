@@ -5,45 +5,28 @@ from modules.props.ConfigProps import AppLogger
 logger = AppLogger()
 
 class DefaultMessageHandler():
-	__red = redis.Redis(host='localhost', port=6379)
-	
+	red = redis.Redis(host='localhost', port=6379)
 	def __init__(self):
 		logger.info('Initializing by default')
 	
-	def __getCache(self):
-		return self.__red;
-	
-	def __defaultHandler(self, message={}):
+	def __defaultHandler(self, message={}, handler=None):
 		# Initialize cache
-		red = self.__getCache()
 		# Read value from message and store in cache for further processing
-		source_val = json.loads(message.value)
-		# Process message
-		hset_key = '%s:%s'%(message.topic, source_val["exchange_timestamp"])
-		red.hset(hset_key, "exchange_timestamp", source_val["exchange_timestamp"])
-		red.hset(hset_key, "instrument_token", source_val["instrument_token"])
-		red.hset(hset_key, "last_traded_price", source_val["last_traded_price"])
-		logger.debug('Processing %s / %s'%(hset_key, source_val["last_traded_price"]))
-		red.hset(hset_key, "last_traded_time", source_val["last_traded_time"])
-		red.hset(hset_key, "last_traded_quantity", source_val["last_traded_quantity"])
-		red.hset(hset_key, "trade_volume", source_val["trade_volume"])
-		red.hset(hset_key, "best_bid_price", source_val["best_bid_price"])
-		red.hset(hset_key, "best_bid_quantity", source_val["best_bid_quantity"])
-		red.hset(hset_key, "best_ask_price", source_val["best_ask_price"])
-		red.hset(hset_key, "best_ask_quantity", source_val["best_ask_quantity"])
-		red.hset(hset_key, "total_buy_quantity", source_val["total_buy_quantity"])
-		red.hset(hset_key, "total_sell_quantity", source_val["total_sell_quantity"])
-		red.hset(hset_key, "average_trade_price", source_val["average_trade_price"])
-		red.hset(hset_key, "exchange_timestamp", source_val["exchange_timestamp"])
-		red.hset(hset_key, "open_price", source_val["open_price"])
-		red.hset(hset_key, "high_price", source_val["high_price"])
-		red.hset(hset_key, "low_price", source_val["low_price"])
-		red.hset(hset_key, "close_price", source_val["close_price"])
-		red.hset(hset_key, "yearly_high_price", source_val["yearly_high_price"])
-		red.hset(hset_key, "yearly_low_price", source_val["yearly_low_price"])
-	
-	def handle(self, message={}):
-		# Handle message with default handler for now. May need to update later
-		self.__defaultHandler(message)
+		def save_to_cache(source_val):
+			logger.info(source_val)
+			hset_key = source_val["instrument"]
+			self.red.hset(hset_key, "instrument", source_val["instrument"])
+			self.red.hset(hset_key, "open", source_val["open"])
+			self.red.hset(hset_key, "high", source_val["high"])
+			self.red.hset(hset_key, "low", source_val["low"])
+			self.red.hset(hset_key, "close", source_val["close"])
+			self.red.hset(hset_key, "timestamp", source_val["timestamp"])
 		
-
+		instr_msg = json.loads(message.value)
+		if handler != None:
+			handler.calculate_ohlc(instr_msg["instrument_token"], instr_msg["exchange_timestamp"], instr_msg, callback=save_to_cache)
+		
+	def handle(self, message={}, handler=None):
+		# Handle message with default handler for now. May need to update later
+		self.__defaultHandler(message, handler)
+		

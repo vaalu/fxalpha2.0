@@ -41,14 +41,13 @@ if log_level_config != None:
 	default_log_level = log_level[log_level_config.lower()]
 
 logging.basicConfig( format='%(asctime)s : %(levelname)s : %(name)s : %(message)s', 
-					filename=AppProperties['LOG_FILE'], 
 					level=default_log_level )
 logging.log(logging.DEBUG, 'Starting logger')
 
 app_logger = logging.getLogger('app_logger')
 app_logger.setLevel(default_log_level)
 
-rotating_handler = handlers.RotatingFileHandler(AppProperties['LOG_FILE'], maxBytes=500000, backupCount=20)
+rotating_handler = handlers.RotatingFileHandler(AppProperties['LOG_FILE'], maxBytes=50000000, backupCount=20)
 app_logger.addHandler(rotating_handler)
 
 class AppLogger():

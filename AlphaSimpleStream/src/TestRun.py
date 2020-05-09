@@ -1,11 +1,9 @@
 import datetime
 import calendar
 import time
-# from modules.SolrConfig import SolrConfig
-from modules.RedisUtil2 import RedisUtil2
+from modules.AlphaConsumer import AlphaConsumer
 from modules.Nifty50Instruments import Nifty50
 from modules.props.ConfigProps import InstrumentMapper
-from modules.analysis.ComputeBollingerBandsRSI import ComputeBollingerBand
 
 def time_tests():
 	print('Calculating bollinger bands')
@@ -38,17 +36,6 @@ def time_tests():
 
 
 def main():
-	# prepare = SolrConfig()
-	# prepare.create_cores_for_instruments()
-	n50 = Nifty50()
-	equities = n50.fetchNifty50()
-	for equity in equities:
-		if equity != 'M&M':
-			instr_id = InstrumentMapper[equity]
-			print('Collecting for instrument: %s'%(instr_id))
-			redutil = RedisUtil2(instr_id).readForInstrument()
-	# instr_id = InstrumentMapper['ADANIPORTS']
-	# redutil = RedisUtil2(instr_id).readForInstrument()
-	ComputeBollingerBand()
+	AlphaConsumer().consume_messages()
 if __name__ == "__main__":
 	main()

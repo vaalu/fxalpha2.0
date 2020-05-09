@@ -14,7 +14,7 @@ class AliceStream():
 	r = redis.Redis(host='localhost', port=6379)
 	consumer = KafkaConsumer(	topic_name, 
 								auto_offset_reset='earliest',
-								bootstrap_servers=['alpha.jeani.in:9092'], 
+								bootstrap_servers=['localhost:9092'], 
 								api_version=(0, 10), 
 								consumer_timeout_ms=1000)
 	
