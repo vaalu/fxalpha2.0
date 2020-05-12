@@ -1,7 +1,7 @@
 import datetime
 import calendar
 import time
-from modules.AlphaConsumer import AlphaConsumer
+from modules.AlphaConsumerLegacy import AlphaConsumerLegacy
 from modules.Nifty50Instruments import Nifty50
 from modules.props.ConfigProps import InstrumentMapper
 
@@ -36,6 +36,6 @@ def time_tests():
 
 
 def main():
-	AlphaConsumer().consume_messages()
+	AlphaConsumerLegacy().consume_messages()
 if __name__ == "__main__":
 	main()

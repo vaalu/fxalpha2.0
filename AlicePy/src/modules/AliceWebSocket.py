@@ -96,7 +96,7 @@ class AliceWebSocket():
 			'yearly_high_price':(marketdataPkt.yearly_high_price/multiplierValue), 
 			'yearly_low_price':(marketdataPkt.yearly_low_price/multiplierValue)
 		}
-		logger.debug(datum)
+		logger.info(datum)
 		producer.send(str(marketdataPkt.instrument_token), datum)
 		producer.flush()
 		# data_from_resource_server(access_token)
