@@ -23,7 +23,6 @@ class DefaultMessageHandlerLegacy():
 		red.hset(hset_key, "exchange_timestamp", source_val["exchange_timestamp"])
 		red.hset(hset_key, "instrument_token", source_val["instrument_token"])
 		red.hset(hset_key, "last_traded_price", source_val["last_traded_price"])
-		logger.info('Processing %s / %s'%(hset_key, source_val["last_traded_price"]))
 		red.hset(hset_key, "last_traded_time", source_val["last_traded_time"])
 		red.hset(hset_key, "last_traded_quantity", source_val["last_traded_quantity"])
 		red.hset(hset_key, "trade_volume", source_val["trade_volume"])
