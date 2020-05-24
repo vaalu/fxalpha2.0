@@ -2,6 +2,9 @@ import json
 import redis
 import time
 import datetime
+from modules.props.ConfigProps import AppLogger
+
+logger = AppLogger()
 
 class DefaultMessageHandlerLegacy():
 	__red = redis.Redis(host='localhost', port=6379)
@@ -18,12 +21,13 @@ class DefaultMessageHandlerLegacy():
 		# Read value from message and store in cache for further processing
 		source_val = json.loads(message.value)
 		# Process message
-		curr_ts = float(source_val["exchange_timestamp"]) + ((datetime.datetime.now().microsecond % 100000)/100000)
-		hset_key = '%s:%s:%s'%(message.topic, source_val["exchange_timestamp"], curr_ts)
+		curr_ts = float(source_val["last_traded_time"]) + ((datetime.datetime.now().microsecond % 100000)/100000)
+		hset_key = '%s:%s:%s'%(message.topic, source_val["last_traded_time"], curr_ts)
 		red.hset(hset_key, "exchange_timestamp", source_val["exchange_timestamp"])
 		red.hset(hset_key, "instrument_token", source_val["instrument_token"])
 		red.hset(hset_key, "last_traded_price", source_val["last_traded_price"])
 		red.hset(hset_key, "last_traded_time", source_val["last_traded_time"])
+		logger.info('%s : %s : %s'%(hset_key, source_val["last_traded_time"], source_val["last_traded_price"]))
 		red.hset(hset_key, "last_traded_quantity", source_val["last_traded_quantity"])
 		red.hset(hset_key, "trade_volume", source_val["trade_volume"])
 		red.hset(hset_key, "best_bid_price", source_val["best_bid_price"])

@@ -18,10 +18,8 @@ AppProperties = {
 	'NIFTY50_URL':config.get('TRADING_INSTRUMENTS', 'nifty50.url'), 
 	'KAFKA_URL':config.get('KAFKA', 'kafka.server.url'), 
 	'KAFKA_PORT':config.get('KAFKA', 'kafka.server.port'), 
-	'SOLR_PATH':config.get('SOLR', 'solr.server.path'),
-	'SOLR_URL':config.get('SOLR', 'solr.server.url'), 
-	'SOLR_PORT':config.get('SOLR', 'solr.server.port'), 
 	'LOG_FILE':config.get('LOGGER', 'logging.file'),
+	'LOG_OHLC_FILE':config.get('LOGGER', 'logging.ohlc.file'),
 	'LOG_LEVEL':config.get('LOGGER', 'logging.level')
 }
 
@@ -49,6 +47,31 @@ app_logger.setLevel(default_log_level)
 
 rotating_handler = handlers.RotatingFileHandler(AppProperties['LOG_FILE'], maxBytes=50000000, backupCount=20)
 app_logger.addHandler(rotating_handler)
+
+# ohlc_rotating_handler = handlers.RotatingFileHandler(AppProperties['LOG_OHLC_FILE'], maxBytes=50000000, backupCount=20)
+# app_logger.addHandler(ohlc_rotating_handler)
+
+class AppOHLCLogger():
+	def debug(self, msg):
+		app_logger.debug(msg)
+		if log_level_config.lower() == "console":
+			print(msg)
+	def error(self, msg):
+		app_logger.error(msg)
+		if log_level_config.lower() == "console":
+			print(msg)
+	def critical(self, msg):
+		app_logger.critical(msg)
+		if log_level_config.lower() == "console":
+			print(msg)
+	def fatal(self, msg):
+		app_logger.fatal(msg)
+		if log_level_config.lower() == "console":
+			print(msg)
+	def info(self, msg):
+		app_logger.info(msg)
+		if log_level_config.lower() == "console":
+			print(msg)
 
 class AppLogger():
 	def debug(self, msg):
