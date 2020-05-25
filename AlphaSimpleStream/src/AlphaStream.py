@@ -44,25 +44,15 @@ process_start_15 = start_time
 process_start_30 = start_time
 process_start_60 = start_time
 
-# OHLC calc for 5 mins 
 def ohlc_process_05(sch):
 	duration = 60 * 5
-	now_date = datetime.datetime.now()
-	process_init = time.mktime(now_date.replace(second=0).timetuple()) + duration
-	process_start_05 = time.mktime(now_date.replace(second=0).timetuple()) - duration
-	time_limit = duration
-	print(time_limit)
-	OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_05,process_start_05+time_limit,5)
-	process_start_05 = process_start_05 + time_limit
-	logger.info('Waiting for next 5M ...%s'%(datetime.datetime.fromtimestamp(process_start_05).isoformat() ))
-	curr_time = time.mktime(datetime.datetime.now().timetuple())
-	if curr_time > process_start_05:
-		OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_05-5,process_start_05+(curr_time-process_start_05),1)
-		process_start_05=process_start_05 + curr_time
-		process_init = time.mktime(now_date.replace(second=0).timetuple()) + 60
-	time_delta = (process_init - time.mktime(datetime.datetime.now().timetuple()))
-	logger.info('Next calculation starts in %f seconds'%time_delta)
-	# ohlc_scheduler.enter(time_delta,1,ohlc_process_05,(sch,))
+	logger.info('Processing 5 mins ohlc')
+	process_init = time.mktime(datetime.datetime.now().replace(second=0).timetuple())
+	while (process_init % duration) != 0:
+		process_init = process_init - 1
+	dt = datetime.datetime.fromtimestamp(process_init).isoformat()
+	logger.info('5 min processing started for %s'%dt)
+	OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_05-duration,process_start_05,5)
 
 def ohlc_process_01(sch):
 	now_date = datetime.datetime.now()
@@ -73,7 +63,7 @@ def ohlc_process_01(sch):
 	OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_01,process_start_01+time_limit,1)
 	process_start_01 = process_start_01 + time_limit
 	logger.info('Waiting for next 1M ...%s'%(datetime.datetime.fromtimestamp(process_start_01).isoformat() ))
-	curr_time = time.mktime(datetime.datetime.now().timetuple())
+	curr_time = time.mktime(datetime.datetime.now().replace(second=0).timetuple())
 	if curr_time > process_start_01:
 		OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_01-5,process_start_01+(curr_time-process_start_01),1)
 		process_start_01=process_start_01 + curr_time
@@ -86,17 +76,9 @@ def ohlc_process_01(sch):
 		ohlc_scheduler_5min.run()
 	ohlc_scheduler.enter(time_delta,1,ohlc_process_01,(sch,))
 
-# Initializing one min ohlc
-zeroth_sec = time.mktime(datetime.datetime.now().replace(second=0).timetuple()) + 60
-print('To be initiated 1M at %s'%(datetime.datetime.fromtimestamp(zeroth_sec).isoformat()))
-curr_time = time.mktime(datetime.datetime.now().timetuple())
-
-ohlc_scheduler.enter(zeroth_sec-curr_time,1,ohlc_process_01,(ohlc_scheduler,))
-ohlc_scheduler.run()
-
 def eod_calc():
-	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day -2, 9, 37, 0).timetuple())
-	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day -2, 19, 45, 0).timetuple())
+	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day, 9, 0, 0).timetuple())
+	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day, 11, 35, 0).timetuple())
 	while process_start_01 < day_end:
 		time_limit = 60
 		logger.info('Processing ...%s'%(datetime.datetime.fromtimestamp(process_start_01).isoformat() ))
@@ -104,14 +86,21 @@ def eod_calc():
 		process_start_01 = process_start_01 + time_limit
 
 def eod_calc_5():
-	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day-2, 9, 0, 0).timetuple())
-	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day-2,10, 45, 0).timetuple())
+	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day, 9, 0, 0).timetuple())
+	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day,11, 35, 0).timetuple())
 	while process_start_01 < day_end:
 		time_limit = 60  * 5
 		logger.info('Processing ...%s'%(datetime.datetime.fromtimestamp(process_start_01).isoformat() ))
 		OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_01,process_start_01+time_limit,5)
 		process_start_01 = process_start_01 + time_limit
 
-# eod_calc()
-# eod_calc_5()
+# Initializing one min ohlc
+zeroth_sec = time.mktime(datetime.datetime.now().replace(second=0).timetuple()) + 15
+print('To be initiated 1M at %s'%(datetime.datetime.fromtimestamp(zeroth_sec).isoformat()))
+curr_time = time.mktime(datetime.datetime.now().timetuple())
+ohlc_scheduler.enter(zeroth_sec-curr_time,1,ohlc_process_01,(ohlc_scheduler,))
+
+eod_calc()
+eod_calc_5()
+ohlc_scheduler.run()
 
