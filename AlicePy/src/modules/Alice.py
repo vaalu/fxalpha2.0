@@ -7,6 +7,7 @@ from alice_blue import *
 from modules.AliceUtil import AliceUtil
 from modules.props.ConfigProps import aliceAnt, AppLogger
 from modules.AliceWebSocket import AliceWebSocket
+from modules.util.AliceInstrumentsUtil import AliceInstruments
 
 logger = AppLogger()
 logger.debug('Fetching access token from alice blue ant API')
@@ -46,34 +47,9 @@ class Alice():
 		
 	@classmethod
 	def fetchCommoditiesV1(self, instruments=[]):
-		commodities_instr = list([])
-		instr = self.alice.get_instrument_by_symbol(exchange='MCX', symbol='NATURALGAS MAY FUT')
-		commodities_instr.append([4, instr.token])
-		return commodities_instr
+		[commodities_instr, commodities_token_list] = AliceInstruments().fetch_commodities()
+		return commodities_token_list
 	
-	@classmethod
-	def fetchNifty50LiveV1(self):
-		logger.debug('Establishing websocket connection for instruments ')
-		nifty50_instruments, consolidated_nifty_50_securities = self.fetchNifty50()
-		logger.debug('Connecting for instruments')
-		logger.debug(nifty50_instruments)
-		socket_opened = False
-		def on_message(msg):
-			logger.debug(f'Message recieved: {msg}')
-		def on_open():
-			global socket_opened
-			socket_opened = True
-		self.alice.start_websocket(subscribe_callback=on_message,
-                      socket_open_callback=on_open,
-                      run_in_background=False)
-		while(socket_opened==False):
-			print('Socket is not opened')
-			pass
-		self.alice.subscribe(consolidated_nifty_50_securities, LiveFeedType.MARKET_DATA)
-		logger.debug('All subscriptions...')
-		logger.debug(self.alice.get_all_subscriptions())
-		sleep(10)
-
 	@classmethod
 	def fetchNifty50Live(self):
 		logger.debug('Establishing websocket connection for instruments ')
@@ -93,25 +69,6 @@ class Alice():
 		ws = AliceWebSocket(websocketUrl=wssUrl, token=self.access_token, instruments=commodities)
 		ws.initialize(ws.instruments)
 		print('Websocket is closed...')
-	
-	@classmethod
-	def fetchCommoditiesLiveV1(self):
-		commodities = self.fetchCommoditiesV1()
-		logger.debug('Establishing websocket connection for instruments ')
-		logger.debug(commodities)
-		socket_opened = False
-		def event_handler_quote_update(message):
-			logger.debug(f"quote update {message}")
-		def open_callback():
-			global socket_opened
-			socket_opened = True
-		self.alice.start_websocket(subscribe_callback=event_handler_quote_update,
-							socket_open_callback=open_callback,
-							run_in_background=False)
-		while(socket_opened==False):
-			pass
-		self.alice.subscribe(218567, LiveFeedType.MARKET_DATA)
-		sleep(10)
 
 if __name__ == "__main__":
 	alice = Alice().fetchCommoditiesLive()
