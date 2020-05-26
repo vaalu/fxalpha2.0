@@ -64,6 +64,8 @@ class RedisUtil():
 				cache_item = self.__red.hgetall(key)
 				if cache_item != None and cache_item != {}:
 					ohlc_data = item_processor.calculate_ohlc(int(cache_item["instrument_token"]), "%s:%i"%(duration_key, start_tstamp), start_tstamp, cache_item)
+				# Delete previously processed keys. Mark the keys for deletion
+				self.__red.set("KEYS:MARK:DEL:%s"%key, key)
 			if ohlc_data != {}:
 				item_processor.final_save(self.__cache_it["save"])
 			self.__cache_it["duration"]=duration_key
@@ -101,3 +103,24 @@ class RedisUtil():
 					ohlc_data = item_processor.calculate_ohlc(int(cache_item["instrument_token"]), "1M:%i"%(start_tstamp), int(cache_item["last_traded_time"]), cache_item)
 			if ohlc_data != {}:
 				item_processor.final_save(self.__cache_it["save"])
+	
+	def split_as_batch(self, iterable, batch_size):
+		for indx in range(0, len(iterable), batch_size):
+			yield iterable[indx:indx + batch_size]
+	
+	def remove_processed(self):
+		logger.info('Removing all processed keys')
+		processed_keys = list([])
+		split_keys = self.split_as_batch(self.__red.keys("KEYS:MARK:DEL*"), 500)
+		index = 0
+		for ind in split_keys:
+			index = index + 1
+		logger.info('Total count %i'%index)
+		split_keys = self.split_as_batch(self.__red.keys("KEYS:MARK:DEL*"), 500)
+		for batch in split_keys:
+			split_keys_del = list([])
+			for key in batch:
+				self.__red.delete(self.__red.get(key))
+				self.__red.delete(key)
+			index = index-1
+			logger.info('Deleting from cache. Remaining batches: %i'%index)

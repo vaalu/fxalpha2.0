@@ -14,7 +14,7 @@ class AlphaConsumerLegacy():
 	logger.info('All topics that are present: ')
 	logger.info(topics)
 	consumer = KafkaConsumer(	*topics, 
-								auto_offset_reset='earliest',
+								auto_offset_reset='latest',
 								bootstrap_servers=[kafka_server], 
 								api_version=(0, 10), 
 								consumer_timeout_ms=1000)

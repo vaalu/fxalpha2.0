@@ -9,7 +9,7 @@ class AlphaConsumer():
 	kafka_server = '%s:%s'%(AppProperties['KAFKA_URL'], AppProperties['KAFKA_PORT'])
 	init_consumer = KafkaConsumer(	bootstrap_servers=[kafka_server], 
 								api_version=(0, 10), 
-								consumer_timeout_ms=1000)
+								consumer_timeout_ms=10000)
 	topics = init_consumer.topics()
 	logger.info('All topics that are present: ')
 	logger.info(topics)
@@ -17,7 +17,7 @@ class AlphaConsumer():
 								auto_offset_reset='latest',
 								bootstrap_servers=[kafka_server], 
 								api_version=(0, 10), 
-								consumer_timeout_ms=1000)
+								consumer_timeout_ms=10000)
 	
 	handler = DefaultMessageHandler()
 	__ohlc_handlers = {}
