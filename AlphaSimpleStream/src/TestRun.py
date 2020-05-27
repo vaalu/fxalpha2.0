@@ -3,7 +3,6 @@ import calendar
 import time
 from modules.AlphaConsumerLegacy import AlphaConsumerLegacy
 from modules.Nifty50Instruments import Nifty50
-from modules.props.ConfigProps import InstrumentMapper
 
 def time_tests():
 	print('Calculating bollinger bands')
