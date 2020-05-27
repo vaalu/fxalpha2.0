@@ -16,53 +16,45 @@ class AlphaStream():
 	ohlc_processor = OHLCProcessor()
 	instr_topics = ['INSTRUMENTS_EQUITIES','INSTRUMENTS_COMMODITIES']
 	kafka_server = '%s:%s'%(AppProperties['KAFKA_URL'], AppProperties['KAFKA_PORT'])
-	init_consumer = KafkaConsumer(	*instr_topics, 
-								auto_offset_reset='earliest',
+	init_consumer = KafkaConsumer(	
+								*instr_topics, 
 								bootstrap_servers=[kafka_server], 
 								api_version=(0, 10), 
 								consumer_timeout_ms=1000)
-	topics = set([])
-	commodities = set([])
-	equities = set([])
-	mapped_instruments = {}
+	topics = []
+	commodities = []
+	equities = []
 	def __init__(self):
 		logger.debug('Initializing AlphaStream')
 		for msg in self.init_consumer:
 			value = json.loads(msg.value)
 			if value["exchange"] == 'MCX':
-				self.commodities.add(str(value["token"]))
+				commodities.append(str(value["token"]))
 			else:
-				self.equities.add(str(value["token"]))
-			self.topics.add(str(value["token"]))
-			self.mapped_instruments[str(value["token"])]=str(value["symbol"])
+				equities.append(str(value["token"]))
+			topics.append(str(value["token"]))
 		if self.init_consumer is not None:
 			self.init_consumer.close()
 
 	def fetch_topics(self):
 		logger.debug('All topics that are present: %s'%str(self.topics) )
-		return list(self.topics)
+		return self.topics
 	
 	def fetch_topics_equities(self):
 		logger.debug('All topics that are present: %s'%str(self.topics) )
-		return list(self.equities)
+		return self.equities
 	
 	def fetch_topics_commodities(self):
 		logger.debug('All topics that are present: %s'%str(self.topics) )
-		return list(self.commodities)
-
-	def fetch_mapped_instruments(self):
-		logger.debug('All topics that are present: %s'%str(self.mapped_instruments) )
-		return self.mapped_instruments
+		return self.equities
 
 	def process_stream(self):
 		curr_time = 1589281800
 		logger.info('Started processing streams...until %f'%(curr_time) )
 		self.ohlc_processor.process_all_from_cache(['218567'], curr_time)
 
-alpha = AlphaStream()
-topics = alpha.fetch_topics()
-commodities = alpha.fetch_topics_commodities()
-mapped_instruments = alpha.fetch_mapped_instruments()
+topics = AlphaStream().fetch_topics()
+commodities = AlphaStream().fetch_topics_commodities()
 
 logger.info('All the instruments: %s'%str(topics))
 logger.info('Commodities: %s'%str(commodities))
