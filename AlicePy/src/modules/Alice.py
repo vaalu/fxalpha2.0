@@ -75,7 +75,8 @@ class Alice():
 	def updateTopicsToKafka(self):
 		nifty50_instruments, consolidated_nifty_50_securities = self.fetchNifty50()
 		commodities_instr, commodities_token_list = AliceInstruments().fetch_commodities()
-		all_instruments = list([])
+		equities = list([])
+		commodities = list([])
 		for instr in consolidated_nifty_50_securities:
 			instr_detail = {
 				"symbol":instr.symbol,
@@ -87,7 +88,8 @@ class Alice():
 				date_args = instr.expiry.timetuple()[:6]
 				expiry = '%i:%i:%i'%(date_args.year,date_args.month,date_args.day)
 				instr_detail["expiry"] = str(expiry)
-			all_instruments.append(instr_detail)
+			commodities.append(instr_detail)
+		KafkaUtil().post_instruments(commodities, 'INSTRUMENTS_COMMODITIES')
 		for instr in commodities_instr:
 			instr_detail = {
 				"symbol":instr.symbol,
@@ -99,8 +101,8 @@ class Alice():
 				date_args = instr.expiry.timetuple()[:6]
 				expiry_datetime = datetime(*date_args)
 				instr_detail["expiry"] = instr.expiry
-			all_instruments.append(instr_detail)
-		KafkaUtil().post_instruments(all_instruments)
+			equities.append(instr_detail)
+		KafkaUtil().post_instruments(equities, 'INSTRUMENTS_EQUITIES')
 
 if __name__ == "__main__":
 	alice = Alice().fetchCommoditiesLive()

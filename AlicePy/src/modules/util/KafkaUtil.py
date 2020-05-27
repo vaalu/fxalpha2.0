@@ -13,8 +13,8 @@ producer = KafkaProducer(bootstrap_servers=kafka_server, value_serializer=lambda
 class KafkaUtil():
 	def __init__(self):
 		logger.info('Initializing kafka util')
-	def post_instruments(self, instruments):
+	def post_instruments(self, instruments, topic):
 		for instrument in instruments:
 			logger.info('Instrument: %s'%str(instrument))
-			producer.send('INSTRUMENTS', instrument)
+			producer.send(topic, instrument)
 			producer.flush()
