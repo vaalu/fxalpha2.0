@@ -18,6 +18,10 @@ AppProperties = {
 	'NIFTY50_URL':config.get('TRADING_INSTRUMENTS', 'nifty50.url'), 
 	'KAFKA_URL':config.get('KAFKA', 'kafka.server.url'), 
 	'KAFKA_PORT':config.get('KAFKA', 'kafka.server.port'), 
+	'MONGO_URL':config.get('MONGO', 'mongo.server.url'), 
+	'MONGO_PORT':config.get('MONGO', 'mongo.server.port'), 
+	'MONGO_USER':config.get('MONGO', 'mongo.user'), 
+	'MONGO_PASSWORD':config.get('MONGO', 'mongo.password'), 
 	'LOG_FILE':config.get('LOGGER', 'logging.file'),
 	'LOG_OHLC_FILE':config.get('LOGGER', 'logging.ohlc.file'),
 	'LOG_LEVEL':config.get('LOGGER', 'logging.level')
