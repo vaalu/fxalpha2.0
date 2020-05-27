@@ -10,6 +10,8 @@ import time
 
 logger = AppLogger()
 alice = Alice()
+alice.updateTopicsToKafka()
+
 app = Flask(__name__)
 class Commodities():
 	def __init__(self):

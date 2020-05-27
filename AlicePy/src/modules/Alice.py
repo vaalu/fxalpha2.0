@@ -4,10 +4,12 @@ import requests
 import configparser
 import logging
 from alice_blue import *
+from datetime import datetime
 from modules.AliceUtil import AliceUtil
 from modules.props.ConfigProps import aliceAnt, AppLogger
 from modules.AliceWebSocket import AliceWebSocket
 from modules.util.AliceInstrumentsUtil import AliceInstruments
+from modules.util.KafkaUtil import KafkaUtil
 
 logger = AppLogger()
 logger.debug('Fetching access token from alice blue ant API')
@@ -69,6 +71,36 @@ class Alice():
 		ws = AliceWebSocket(websocketUrl=wssUrl, token=self.access_token, instruments=commodities)
 		ws.initialize(ws.instruments)
 		print('Websocket is closed...')
+	@classmethod
+	def updateTopicsToKafka(self):
+		nifty50_instruments, consolidated_nifty_50_securities = self.fetchNifty50()
+		commodities_instr, commodities_token_list = AliceInstruments().fetch_commodities()
+		all_instruments = list([])
+		for instr in consolidated_nifty_50_securities:
+			instr_detail = {
+				"symbol":instr.symbol,
+				"name":instr.name, 
+				"token":instr.token,
+				"exchange":instr.exchange
+			}
+			if instr.expiry != None:
+				date_args = instr.expiry.timetuple()[:6]
+				expiry = '%i:%i:%i'%(date_args.year,date_args.month,date_args.day)
+				instr_detail["expiry"] = str(expiry)
+			all_instruments.append(instr_detail)
+		for instr in commodities_instr:
+			instr_detail = {
+				"symbol":instr.symbol,
+				"name":instr.name, 
+				"token":instr.token,
+				"exchange":instr.exchange
+			}
+			if instr.expiry != None:
+				date_args = instr.expiry.timetuple()[:6]
+				expiry_datetime = datetime(*date_args)
+				instr_detail["expiry"] = instr.expiry
+			all_instruments.append(instr_detail)
+		KafkaUtil().post_instruments(all_instruments)
 
 if __name__ == "__main__":
 	alice = Alice().fetchCommoditiesLive()
