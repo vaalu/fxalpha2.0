@@ -1,6 +1,7 @@
 import time
 import sched
 import datetime
+import json
 from modules.AlphaConsumerLegacy import AlphaConsumerLegacy
 from modules.props.ConfigProps import AppLogger, AppProperties
 from modules.OHLCProcessor import OHLCProcessor
@@ -13,17 +14,24 @@ ohlc_scheduler_5min = sched.scheduler(time.time, time.sleep)
 
 class AlphaStream():
 	ohlc_processor = OHLCProcessor()
+	instr_topics = ['INSTRUMENTS_EQUITIES','INSTRUMENTS_COMMODITIES']
 	kafka_server = '%s:%s'%(AppProperties['KAFKA_URL'], AppProperties['KAFKA_PORT'])
-	init_consumer = KafkaConsumer(	bootstrap_servers=[kafka_server], 
+	init_consumer = KafkaConsumer(	
+								*instr_topics, 
+								bootstrap_servers=[kafka_server], 
 								api_version=(0, 10), 
 								consumer_timeout_ms=1000)
-	topics = init_consumer.topics()
-	logger.debug('All topics that are present: ')
-	logger.debug(topics)
+	topics = []
 	def __init__(self):
 		logger.debug('Initializing AlphaStream')
+		for msg in self.init_consumer:
+			value = json.loads(msg.value)
+			topics.append(str(value["token"]))
+		if self.init_consumer is not None:
+			self.init_consumer.close()
 
 	def fetch_topics(self):
+		logger.debug('All topics that are present: %s'%str(self.topics) )
 		return self.topics
 
 	def process_stream(self):
