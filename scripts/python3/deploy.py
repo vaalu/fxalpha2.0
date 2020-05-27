@@ -38,9 +38,10 @@ kafka_port=config.get('KAFKA', 'deploy.kafka.server.port')
 log_file=config.get('LOGGER', 'deploy.logging.file')
 log_level=config.get('LOGGER', 'deploy.logging.level')
 
-solr_path=config.get('SOLR', 'deploy.solr.server.path')
-solr_url=config.get('SOLR', 'deploy.solr.server.url')
-solr_port=config.get('SOLR', 'deploy.solr.server.port')
+mongo_url=config.get('MONGO', 'deploy.mongo.server.url')
+mongo_port=config.get('MONGO', 'deploy.mongo.server.port')
+mongo_user=config.get('MONGO', 'deploy.mongo.server.user')
+mongo_password=config.get('MONGO', 'deploy.mongo.server.password')
 
 client = boto3.client(
     's3',
@@ -61,8 +62,8 @@ def prepare_download_path(download_loc):
 loc = prepare_download_path('/')
 print ('Download location: %s'%(loc))
 try:
-	print('Removing existing directory')
-	shutil.rmtree(loc)
+	# print('Removing existing directory')
+	# shutil.rmtree(loc)
 	print('Creating new directory')
 	os.makedirs(loc)
 except OSError as e:
@@ -156,9 +157,10 @@ def update_properties_alphastream():
 	alice_config.set('KAFKA', 'kafka.server.port', kafka_port)
 	alice_config.set('LOGGER', 'logging.file', log_file)
 	alice_config.set('LOGGER', 'logging.level', log_level)
-	alice_config.set('SOLR', 'solr.server.path', solr_path)
-	alice_config.set('SOLR', 'solr.server.url', solr_url)
-	alice_config.set('SOLR', 'solr.server.port', solr_port)
+	alice_config.set('MONGO', 'mongo.server.url', mongo_url)
+	alice_config.set('MONGO', 'mongo.server.port', mongo_port)
+	alice_config.set('MONGO', 'mongo.user', mongo_user)
+	alice_config.set('MONGO', 'mongo.password', mongo_password)
 	
 	with open(alpha_props, 'w+') as alice_file:
 		alice_config.write(alice_file)
