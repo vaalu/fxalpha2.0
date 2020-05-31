@@ -9,6 +9,11 @@ logger = AppLogger()
 class RedisUtil():
 	__red = redis.Redis(host='localhost', port=6379, decode_responses=True)
 	__cache_it = {"duration":"0M"}
+	__instrument_types = {
+		"NSE":"EQUITY",
+		"BSE":"EQUITY",
+		"MCX":"COMMODITIES"
+	}
 	def __init__(self):
 		logger.debug('Initializing redis util')
 		def save_to_cache(source_val):
@@ -24,6 +29,14 @@ class RedisUtil():
 			self.__red.zadd(zkey, {hset_key:float(source_val["timestamp"])})
 		self.__cache_it["save"] = save_to_cache
 	
+	def add_processing_instruments(self, instruments):
+		for instrument in instruments:
+			hset_key = 'INSTRUMENT:%s:%s'%(self.__instrument_types[instrument["exchange"]], instrument["token"])
+			self.__red.hset(hset_key, "token", instrument["token"])
+			self.__red.hset(hset_key, "symbol", instrument["symbol"])
+			self.__red.hset(hset_key, "name", instrument["name"])
+			self.__red.hset(hset_key, "expiry", instrument["expiry"])
+
 	def split_get_keys(self, instr_key, start_tstamp, end_tstamp):
 		hset_keys = list([])
 		remaining = end_tstamp % 30
@@ -108,6 +121,16 @@ class RedisUtil():
 		for indx in range(0, len(iterable), batch_size):
 			yield iterable[indx:indx + batch_size]
 	
+	def eod_process(self, instrument, duration):
+		key_pattern = '%s:%iM:*'%(str(instrument), duration)
+		split_eod_keys = self.split_as_batch(self.__red.keys(key_pattern), 100)
+		items_to_save = list([])
+		for batch in split_eod_keys:
+			for key in batch:
+				cache_item = self.__red.hgetall(key)
+				items_to_save.append(cache_item)
+		return items_to_save
+
 	def remove_processed(self):
 		logger.info('Removing all processed keys')
 		processed_keys = list([])

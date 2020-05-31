@@ -65,3 +65,24 @@ https://github.com/confluentinc/confluent-kafka-python/issues/535
 
 https://factorpad.com/tech/solr/reference/solr-create-core.html
 https://timestamp.online/article/how-to-get-current-timestamp-in-python
+
+http://iv-m.github.io/articles/kafka-limit-disk-space/
+https://medium.com/@sunny_81705/kafka-log-retention-and-cleanup-policies-c8d9cb7e09f8
+
+
+/opt/solr-8.5.1/bin/solr
+
+
+sudo service solr stop
+sudo rm -r /var/solr
+sudo rm -r /opt/solr-8.5.1
+sudo rm -r /opt/solr
+sudo rm /etc/init.d/solr
+sudo deluser --remove-home solr
+sudo deluser --group solr
+
+redis-cli FLUSHALL
+
+https://jaceklaskowski.gitbooks.io/apache-kafka/kafka-properties-bootstrap-servers.html
+https://redislabs.com/blog/get-sql-like-experience-redis/
+https://pythontic.com/database/redis/sorted%20set%20-%20add%20and%20remove%20elements

@@ -16,3 +16,4 @@ asyncio
 websockets
 redis
 hiredis
+pymongo

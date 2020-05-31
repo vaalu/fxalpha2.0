@@ -3,6 +3,9 @@ import calendar
 import time
 from modules.AlphaConsumerLegacy import AlphaConsumerLegacy
 from modules.Nifty50Instruments import Nifty50
+from modules.util.MongoUtil import MongoUtil
+# from modules.EODProcessing import EODProcessor
+import modules.EODProcessing
 
 def time_tests():
 	print('Calculating bollinger bands')
@@ -35,6 +38,8 @@ def time_tests():
 
 
 def main():
-	AlphaConsumerLegacy().consume_messages()
+	# AlphaConsumerLegacy().consume_messages()
+	# EODProcessor().initialize_1_min_process()
+	print('Initializing 1 min processing...')
 if __name__ == "__main__":
 	main()

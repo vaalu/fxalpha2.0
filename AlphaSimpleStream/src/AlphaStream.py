@@ -5,64 +5,16 @@ import json
 from modules.AlphaConsumerLegacy import AlphaConsumerLegacy
 from modules.props.ConfigProps import AppLogger, AppProperties
 from modules.OHLCProcessor import OHLCProcessor
-from kafka import KafkaConsumer
+from modules.EODProcessing import EODProcessor
 
 logger = AppLogger()
 
 ohlc_scheduler = sched.scheduler(time.time, time.sleep)
 ohlc_scheduler_5min = sched.scheduler(time.time, time.sleep)
 
-class AlphaStream():
-	ohlc_processor = OHLCProcessor()
-	instr_topics = ['INSTRUMENTS_EQUITIES','INSTRUMENTS_COMMODITIES']
-	kafka_server = '%s:%s'%(AppProperties['KAFKA_URL'], AppProperties['KAFKA_PORT'])
-	init_consumer = KafkaConsumer(	*instr_topics, 
-								auto_offset_reset='earliest',
-								bootstrap_servers=[kafka_server], 
-								api_version=(0, 10), 
-								consumer_timeout_ms=1000)
-	topics = set([])
-	commodities = set([])
-	equities = set([])
-	mapped_instruments = {}
-	def __init__(self):
-		logger.debug('Initializing AlphaStream')
-		for msg in self.init_consumer:
-			value = json.loads(msg.value)
-			if value["exchange"] == 'MCX':
-				self.commodities.add(str(value["token"]))
-			else:
-				self.equities.add(str(value["token"]))
-			self.topics.add(str(value["token"]))
-			self.mapped_instruments[str(value["token"])]=str(value["symbol"])
-		if self.init_consumer is not None:
-			self.init_consumer.close()
-
-	def fetch_topics(self):
-		logger.debug('All topics that are present: %s'%str(self.topics) )
-		return list(self.topics)
-	
-	def fetch_topics_equities(self):
-		logger.debug('All topics that are present: %s'%str(self.topics) )
-		return list(self.equities)
-	
-	def fetch_topics_commodities(self):
-		logger.debug('All topics that are present: %s'%str(self.topics) )
-		return list(self.commodities)
-
-	def fetch_mapped_instruments(self):
-		logger.debug('All topics that are present: %s'%str(self.mapped_instruments) )
-		return self.mapped_instruments
-
-	def process_stream(self):
-		curr_time = 1589281800
-		logger.info('Started processing streams...until %f'%(curr_time) )
-		self.ohlc_processor.process_all_from_cache(['218567'], curr_time)
-
-alpha = AlphaStream()
-topics = alpha.fetch_topics()
-commodities = alpha.fetch_topics_commodities()
-mapped_instruments = alpha.fetch_mapped_instruments()
+topics = ['218567']
+commodities = ['218567']
+# mapped_instruments = alpha.fetch_all_instruments_with_info()
 
 logger.info('All the instruments: %s'%str(topics))
 logger.info('Commodities: %s'%str(commodities))
@@ -100,6 +52,7 @@ def ohlc_process_05(sch):
 		process_start_05=process_start_05 + curr_time
 	ohlc_scheduler.enter(10,1,remove_processed_from_cache,(sch,))
 
+# OHLC calc for 1 min 
 def ohlc_process_01(sch):
 	now_date = datetime.datetime.now()
 	process_init = time.mktime(now_date.replace(second=0).timetuple()) + 60
@@ -124,8 +77,8 @@ def ohlc_process_01(sch):
 	ohlc_scheduler.enter(time_delta,1,ohlc_process_01,(sch,))
 
 def eod_calc():
-	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day, 20, 0, 0).timetuple())
-	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day, 20, 7, 0).timetuple())
+	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day-2, 9, 0, 0).timetuple())
+	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day-2, 22, 30, 0).timetuple())
 	OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_01,process_start_01+60,1)
 	while process_start_01 < day_end:
 		time_limit = 60
@@ -134,13 +87,17 @@ def eod_calc():
 		process_start_01 = process_start_01 + time_limit
 
 def eod_calc_5():
-	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day, 20, 0, 0).timetuple())
-	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day,20, 7, 0).timetuple())
+	process_start_01 = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day-2, 9, 0, 0).timetuple())
+	day_end = time.mktime(datetime.datetime(today_date.year, today_date.month, today_date.day-2,23, 30, 0).timetuple())
 	while process_start_01 < day_end:
 		time_limit = 60  * 5
 		logger.info('Processing ...%s'%(datetime.datetime.fromtimestamp(process_start_01).isoformat() ))
 		OHLCProcessor().process_all_from_cache_with_limit(topics,process_start_01,process_start_01+time_limit,5)
 		process_start_01 = process_start_01 + time_limit
+
+def eod_save(sch):
+	logger.info('EOD process: saving daily data - 1 min')
+	EODProcessor().initialize_1_min_process(topics)
 
 # Initializing one min ohlc
 zeroth_sec = time.mktime(datetime.datetime.now().replace(second=0).timetuple()) + 15
@@ -149,7 +106,8 @@ curr_time = time.mktime(datetime.datetime.now().timetuple())
 
 ohlc_scheduler.enter(zeroth_sec-curr_time,1,ohlc_process_01,(ohlc_scheduler,))
 
-# eod_calc()
-# eod_calc_5()
-# remove_processed_from_cache(ohlc_scheduler)
-ohlc_scheduler.run()
+# eod_save(ohlc_scheduler)
+eod_calc()
+eod_calc_5()
+remove_processed_from_cache(ohlc_scheduler)
+# ohlc_scheduler.run()
