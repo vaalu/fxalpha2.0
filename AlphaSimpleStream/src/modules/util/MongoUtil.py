@@ -6,11 +6,14 @@ logger = AppLogger()
 
 class MongoUtil():
 
+	user = AppProperties['MONGO_USER']
+	passw = urllib.parse.quote_plus(AppProperties['MONGO_PASSWORD'])
+	mongo_server='%s:%s'%(AppProperties['MONGO_URL'], AppProperties['MONGO_PORT'])
+	mongo_uri = 'mongodb://%s:%s@%s/'%(user, passw, mongo_server)
+	__mongo = MongoClient(mongo_uri)
 	def __init__(self):
 		print('Initializing Mongo')
-		user = AppProperties['MONGO_USER']
-		passw = urllib.parse.quote_plus(AppProperties['MONGO_PASSWORD'])
-		mongo_server='%s:%s'%(AppProperties['MONGO_URL'], AppProperties['MONGO_PORT'])
-		mongo_uri = 'mongodb://%s:%s@%s/'%(user, passw, mongo_server)
-		client = MongoClient(mongo_uri)
-		logger.info(client.list_database_names())
+		self.__mongo['fxsource']
+	def eod_save(self, instrument_name, data):
+		logger.info('Saving for instrument %s'%instrument_name)
+		logger.info(data)
