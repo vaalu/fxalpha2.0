@@ -82,8 +82,8 @@ class RedisUtil():
 		index_tsamp = start_tstamp
 		split_search = 2 if end_tstamp%2 == 0 else 1
 		hset_keys = self.split_get_keys(instr_key, start_tstamp, end_tstamp)
-		logger.info('Total number of keys present: %s:%s:1M:%i'%(datetime.fromtimestamp(start_tstamp).isoformat(), instr_key, len(hset_keys)))
 		if hset_keys != None and len(hset_keys) > 0:
+			logger.info('Total number of keys present: %s:%s:1M:%i'%(datetime.fromtimestamp(start_tstamp).isoformat(), instr_key, len(hset_keys)))
 			item_processor = OHLCSingleItemProcessor(instr_key)
 			ohlc_data = {}
 			for key in hset_keys:
@@ -126,7 +126,7 @@ class RedisUtil():
 			for key in keys:
 				cache_item = self.__red.hgetall(key)
 				if cache_item != None:
-					ohlc_data = item_processor.calculate_ohlc(int(cache_item["instrument_token"]), "1M:%i"%(start_tstamp), int(cache_item["last_traded_time"]), cache_item)
+					ohlc_data = item_processor.calculate_ohlc(int(cache_item["instrument_token"]), "1M:%i"%(start_tstamp), int(cache_item["exchange_timestamp"]), cache_item)
 			if ohlc_data != {}:
 				item_processor.final_save(self.__cache_it["save"])
 	

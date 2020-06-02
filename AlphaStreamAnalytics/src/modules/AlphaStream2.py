@@ -32,57 +32,60 @@ class AlphaStrem():
 		logger.info(self.__equity_ids)
 		logger.info(self.__commodity_ids)
 		logger.info(self.__all_instrument_ids)
-	def __tz_offset(self):
-		diff = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
-		return diff
 	def __now(self):
-		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')).replace(second=0)
-	def __now_time(self):
-		return time.mktime(self.__now().replace(second=0).timetuple()) - self.__tz_offset()
-	def __equities_end_time(self):
-		end_time_equities = time.mktime((self.__now().replace(hour=15, minute=30, second=0)).timetuple())
-		return end_time_equities - self.__tz_offset()
+		__curr_time = datetime.now().astimezone(tz.gettz('Asia/Kolkata'))
+		__curr_time = __curr_time.replace(second=0)
+		return __curr_time
+	def __tz_local_time_val(self):
+		diff = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
+		# reduce offset for IST value
+		local_time = time.mktime(self.__now().replace(second=0).timetuple()) - diff
+		return local_time
 	def process_ohlc(self):
 		print('Process starting for ohlc')
 		ohlc_scheduler = sched.scheduler(time.time, time.sleep)
 		ohlc_scheduler_5min = sched.scheduler(time.time, time.sleep)
-		today_date = self.__now()
-		end_time_equities = self.__equities_end_time()
+		today_date = self.__tz_local_time_val()
+		end_time_equities = time.mktime((self.__tz_local_time_val().replace(hour=15, minute=30, second=0)).timetuple())
 		logger.info('Equities time-off: %s'%str(end_time_equities))
 		def remove_processed_from_cache(sch):
 			OHLCProcessor().remove_processed()
 		# OHLC calc for 5 mins 
 		def ohlc_process_05(sch):
 			duration = 60 * 5
-			process_init = self.__now_time()
-			process_start_05 = self.__now_time()
+			now_date = self.__tz_local_time_val()
+			process_init = time.mktime(now_date.replace(second=0).timetuple())
+			process_start_05 = time.mktime(now_date.replace(second=0).timetuple())
 			time_limit = duration
 			logger.info('Processing 5min %f'%(process_start_05))
 			instruments = self.__all_instrument_ids if process_init < end_time_equities else self.__commodity_ids
 			OHLCProcessor().process_all_from_cache_with_limit(instruments,process_start_05,process_start_05+time_limit,5)
 			process_start_05 = process_start_05 + time_limit
 			logger.info('Waiting for next 5M ...%s'%(datetime.fromtimestamp(process_start_05).isoformat() ))
-			curr_time = time.mktime(self.__now().timetuple())
+			curr_time = time.mktime(self.__tz_local_time_val().timetuple())
 			if curr_time > process_start_05:
 				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_05-5,process_start_05+(curr_time-process_start_05),1)
 				process_start_05=process_start_05 + curr_time
 			ohlc_scheduler.enter(10,1,remove_processed_from_cache,(sch,))
 		# OHLC calc for 1 min 
 		def ohlc_process_01(sch):
-			process_init = self.__now_time() + 60
-			process_start_01 = self.__now_time() - 60
-			process_init_time = self.__now_time()
+			now_date = self.__tz_local_time_val()
+			now_date.replace(second=0)
+			process_init = time.mktime(now_date.timetuple()) + 60
+			process_start_01 = time.mktime(now_date.timetuple()) - 60
+			process_init_time = time.mktime(now_date.timetuple())
+			logger.info('Processing 1min %f : %s'%(process_start_01, datetime.fromtimestamp(process_start_01).isoformat()))
 			time_limit = 60 * 1
 			instruments = self.__all_instrument_ids if process_init < end_time_equities else self.__commodity_ids
 			OHLCProcessor().process_all_from_cache_with_limit(instruments,process_start_01,process_start_01+time_limit,1)
 			process_start_01 = process_start_01 + time_limit
 			logger.info('Waiting for next 1M ...%s'%(datetime.fromtimestamp(process_start_01 + time_limit).isoformat() ))
-			curr_time = time.mktime(self.__now().replace(second=0).timetuple())
+			curr_time = time.mktime(self.__tz_local_time_val().replace(second=0).timetuple())
 			if curr_time > process_start_01:
 				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01-5,process_start_01+(curr_time-process_start_01),1)
 				process_start_01=process_start_01 + curr_time
-				process_init = self.__now_time() + 60
-			time_delta = (process_init - self.__now_time())
+				process_init = time.mktime(now_date.timetuple()) + 60
+			time_delta = (process_init - time.mktime(self.__tz_local_time_val().timetuple()))
 			logger.info('Next calculation starts in %f seconds'%time_delta)
 			if process_init_time % (60*5) == 0:
 				logger.info('Initializing 5Min calculation')

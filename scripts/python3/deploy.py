@@ -20,6 +20,7 @@ module_ui_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.ui')
 module_graphql_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.graphql')
 module_py_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.py')
 module_stream_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.stream')
+module_analytics_path = config.get('DEPLOYMENT', 'deploy.artifact.s3.path.analytics')
 
 deploy_location = config.get('DEPLOYMENT', 'deploy.artifact.local.path')
 
@@ -73,6 +74,7 @@ localpath_ui=prepare_download_path('alphaoneui.zip')
 localpath_graphql=prepare_download_path('alphaonegraphql.zip')
 localpath_py=prepare_download_path('alphaonepy.zip')
 localpath_stream=prepare_download_path('alphastream.zip')
+localpath_analytics=prepare_download_path('alphastreamanalytics.zip')
 
 def prepare_artifacts_ui():
 	print ('Downloading artifacts: alphaoneui %s'%(datetime.now()))
@@ -89,6 +91,10 @@ def prepare_artifacts_py():
 def prepare_artifacts_stream():
 	print ('Downloading artifacts: alphaonepy %s'%(datetime.now()))
 	get_latest_artifact(bucket_path, module_stream_path, localpath_stream)
+	print ('Downloading artifacts: ended %s'%(datetime.now()))
+def prepare_artifacts_analytics():
+	print ('Downloading artifacts: alpha-analytics %s'%(datetime.now()))
+	get_latest_artifact(bucket_path, module_analytics_path, localpath_analytics)
 	print ('Downloading artifacts: ended %s'%(datetime.now()))
 
 def extract_artifacts_ui():
@@ -107,6 +113,11 @@ def extract_artifacts_py():
 def extract_artifacts_stream():
 	print ('Extracting artifacts: alphaonepy: %s'%(datetime.now()))
 	with ZipFile(localpath_stream) as zipObj:
+		zipObj.extractall(loc)
+	print ('Extracting artifacts: ended: %s'%(datetime.now()))
+def extract_artifacts_analytics():
+	print ('Extracting artifacts: alphastream-analytics: %s'%(datetime.now()))
+	with ZipFile(localpath_analytics) as zipObj:
 		zipObj.extractall(loc)
 	print ('Extracting artifacts: ended: %s'%(datetime.now()))
 def update_properties_ui():
@@ -166,25 +177,51 @@ def update_properties_alphastream():
 		alice_config.write(alice_file)
 		alice_file.close()
 
+def update_properties_alpha_analytics():
+	print ('Updating alpha analytics properties: %s'%(datetime.now()))
+	
+	alpha_props = loc + 'AlphaStreamAnalytics/application.config.properties'
+	alice_config = configparser.ConfigParser()
+	alice_config.read(alpha_props)
+	
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.id', alice_clientid)
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.user', alice_user)
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.secret', alice_client_secret)
+	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.password', alice_client_password)
+	alice_config.set('TRADING_INSTRUMENTS', 'alphavantage.key', alphavantage_key)
+	alice_config.set('LOGGER', 'logging.file', log_file)
+	alice_config.set('LOGGER', 'logging.level', log_level)
+	alice_config.set('MONGO', 'mongo.server.url', mongo_url)
+	alice_config.set('MONGO', 'mongo.server.port', mongo_port)
+	alice_config.set('MONGO', 'mongo.user', mongo_user)
+	alice_config.set('MONGO', 'mongo.password', mongo_password)
+	
+	with open(alpha_props, 'w+') as alice_file:
+		alice_config.write(alice_file)
+		alice_file.close()
+
 def prepare_artifacts():
 	print ('Preparing artifacts: %s'%(datetime.now()))
 	# prepare_artifacts_ui()
 	# prepare_artifacts_graphql()
 	# prepare_artifacts_py()
-	prepare_artifacts_stream()
+	# prepare_artifacts_stream()
+	prepare_artifacts_analytics()
 
 def extract_artifacts():
 	print ('Extracting artifacts: in appropriate locations %s'%(datetime.now()))
 	# extract_artifacts_ui()
 	# extract_artifacts_graphql()
 	# extract_artifacts_py()
-	extract_artifacts_stream()
+	# extract_artifacts_stream()
+	extract_artifacts_analytics()
 
 def update_properties():
 	print ('Updating properties: in appropriate locations %s'%(datetime.now()))
 	# update_properties_ui()
 	# update_properties_py()
-	update_properties_alphastream()
+	# update_properties_alphastream()
+	update_properties_alpha_analytics()
 
 prepare_artifacts()
 extract_artifacts()
