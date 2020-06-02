@@ -34,7 +34,8 @@ class AlphaStrem():
 		logger.info(self.__all_instrument_ids)
 	def __tz_offset(self):
 		diff = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
-		return diff
+		# Offset difference
+		return diff + 5
 	def __now(self):
 		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')).replace(second=0)
 	def __now_time(self):
@@ -54,8 +55,9 @@ class AlphaStrem():
 		# OHLC calc for 5 mins 
 		def ohlc_process_05(sch):
 			duration = 60 * 5
-			process_init = self.__now_time()
-			process_start_05 = self.__now_time()
+			diff_overrun = self.__now_time() % duration
+			process_init = self.__now_time() - diff_overrun
+			process_start_05 = self.__now_time() - diff_overrun
 			time_limit = duration
 			logger.info('Processing 5min %f'%(process_start_05))
 			instruments = self.__all_instrument_ids if process_init < end_time_equities else self.__commodity_ids
@@ -84,7 +86,7 @@ class AlphaStrem():
 				process_init = self.__now_time() + 60
 			time_delta = (process_init - self.__now_time())
 			logger.info('Next calculation starts in %f seconds'%time_delta)
-			if process_init_time % (60*5) == 0:
+			if process_init_time % (60*5) < 60:
 				logger.info('Initializing 5Min calculation')
 				ohlc_scheduler_5min.enter(0,1,ohlc_process_05,(ohlc_scheduler,))
 				ohlc_scheduler_5min.run()
