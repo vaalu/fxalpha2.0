@@ -22,7 +22,8 @@
 # m h  dom mon dow   command
 
 # Call localhost to keep websocket connection alive once every 15 mins
-*/15 9-23 * * 1-5 curl http://localhost:5000 >> /home/ubuntu/build/logs/cron.log
+*/15 3-18 * * 1-5 curl http://localhost:5000 >> /home/ubuntu/build/logs/cron.log
+0 */1 3-18 * * 1-5 curl http://localhost:5000 >> /home/ubuntu/build/logs/cron.log
 
 # Create separate log folders in backup location based on date and time at the start of the day
 # There is a separate script that needs to be called at the start of every day ie., 8PM

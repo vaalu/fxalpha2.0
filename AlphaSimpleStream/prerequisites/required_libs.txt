@@ -5,11 +5,9 @@ request
 flask
 websocket_client==0.54.0
 cryptography
-kafka-python
 alice_blue
 ta
 pandas
-pysolr
 asyncio
 websockets
 redis

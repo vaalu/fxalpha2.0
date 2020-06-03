@@ -156,7 +156,9 @@ class RedisUtil():
 		for batch in split_keys:
 			split_keys_del = list([])
 			for key in batch:
-				self.__red.delete(self.__red.get(key))
+				key_for_del = self.__red.get(key)
+				# logger.info('Deleting key : %s'%key_for_del )
+				self.__red.delete(key_for_del)
 				self.__red.delete(key)
 			index = index-1
 			logger.info('Deleting from cache. Remaining batches: %i'%index)

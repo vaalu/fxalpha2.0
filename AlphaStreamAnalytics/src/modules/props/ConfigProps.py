@@ -26,6 +26,10 @@ AppProps = {
 	'ALPHAVANTAGE_KEY':config.get('TRADING_INSTRUMENTS', 'alphavantage.key'), 
 	'ALPHAVANTAGE_URL':config.get('TRADING_INSTRUMENTS', 'alphavantage.url'), 
 	'NIFTY50_URL':config.get('TRADING_INSTRUMENTS', 'nifty50.url'), 
+	'MONGO_URL':config.get('MONGO', 'mongo.server.url'), 
+	'MONGO_PORT':config.get('MONGO', 'mongo.server.port'), 
+	'MONGO_USER':config.get('MONGO', 'mongo.user'), 
+	'MONGO_PASSWORD':config.get('MONGO', 'mongo.password'), 
 	'LOG_FILE':config.get('LOGGER', 'logging.file'),
 	'LOG_LEVEL':config.get('LOGGER', 'logging.level')
 }
