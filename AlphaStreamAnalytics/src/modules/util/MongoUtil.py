@@ -2,7 +2,7 @@ from modules.props.ConfigProps import AppProps, AppLogger
 from pymongo import MongoClient
 import urllib
 
-logger = AppLogger()
+logger = AppLogger('MongoUtil')
 
 class MongoUtil():
 

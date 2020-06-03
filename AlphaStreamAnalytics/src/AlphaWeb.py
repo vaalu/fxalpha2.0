@@ -10,7 +10,7 @@ import time
 
 app = Flask(__name__)
 
-logger = AppLogger()
+logger = AppLogger('AlphaWeb')
 alice = Alice()
 
 @app.route("/",methods=['GET'])

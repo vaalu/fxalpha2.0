@@ -2,7 +2,7 @@ import json
 import datetime
 from modules.props.ConfigProps import AppLogger
 
-logger = AppLogger()
+logger = AppLogger('OHLCItemProcessor')
 class OHLCItemProcessor():
 	__in_mem={
 		"instrument":"",

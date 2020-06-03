@@ -8,7 +8,7 @@ from modules.util.SingleInstanceUtil import SingleInstanceUtil
 from modules.props.ConfigProps import AppLogger
 from modules.OHLCProcessor import OHLCProcessor
 
-logger = AppLogger()
+logger = AppLogger('AlphaStrem')
 
 class AlphaStrem():
 	__single_instance_util = SingleInstanceUtil()

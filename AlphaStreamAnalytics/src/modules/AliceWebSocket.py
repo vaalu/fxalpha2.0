@@ -6,7 +6,7 @@ import urllib
 from modules.props.ConfigProps import AppLogger
 from modules.util.DefaultMessageHandlerLegacy import DefaultMessageHandlerLegacy
 
-logger = AppLogger()
+logger = AppLogger('AliceWebSocket')
 handler = DefaultMessageHandlerLegacy()
 
 try:

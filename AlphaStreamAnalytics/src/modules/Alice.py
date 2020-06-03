@@ -10,7 +10,7 @@ from modules.props.ConfigProps import AppProps, AppLogger
 from modules.AliceWebSocket import AliceWebSocket
 from modules.util.SingleInstanceUtil import SingleInstanceUtil
 
-logger = AppLogger()
+logger = AppLogger('Alice')
 logger.debug('Fetching access token from alice blue ant API')
 
 class Alice():

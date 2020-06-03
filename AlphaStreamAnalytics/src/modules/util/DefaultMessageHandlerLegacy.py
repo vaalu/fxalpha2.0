@@ -4,7 +4,7 @@ import time
 import datetime
 from modules.props.ConfigProps import AppLogger
 
-logger = AppLogger()
+logger = AppLogger('DefaultMessageHandlerLegacy')
 
 class DefaultMessageHandlerLegacy():
 	__red = redis.Redis(host='localhost', port=6379)

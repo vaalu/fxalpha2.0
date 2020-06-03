@@ -2,7 +2,7 @@
 from modules.props.ConfigProps import AppLogger, AppProps
 from alice_blue import *
 
-logger = AppLogger()
+logger = AppLogger('AliceUtil')
 
 class AliceUtil():
 	retry_count = 0

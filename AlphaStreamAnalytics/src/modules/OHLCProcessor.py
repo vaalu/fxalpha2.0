@@ -3,7 +3,7 @@ import time
 from modules.props.ConfigProps import AppLogger
 from modules.util.RedisUtil import RedisUtil
 
-logger = AppLogger()
+logger = AppLogger('OHLCProcessor')
 
 def process_ohlc(red_util, topic, start_time, end_time, duration, duration_key):
 	while start_time < end_time:

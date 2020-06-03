@@ -1,7 +1,7 @@
 from modules.props.ConfigProps import AppLogger, AppProps
 from modules.util.AliceInstrumentsUtil import AliceInstruments
 
-logger = AppLogger()
+logger = AppLogger('SingleInstanceUtil')
 class SingleInstanceUtil():
 	__alice_instruments = AliceInstruments()
 	def __init__(self):

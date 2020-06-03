@@ -5,7 +5,7 @@ from modules.props.ConfigProps import AppLogger
 from modules.util.OHLCSingleItemProcessor import OHLCSingleItemProcessor
 from modules.util.OHLCItemProcessor import OHLCItemProcessor
 
-logger = AppLogger()
+logger = AppLogger('RedisUtil')
 
 class RedisUtil():
 	__red = redis.Redis(host='localhost', port=6379, decode_responses=True)

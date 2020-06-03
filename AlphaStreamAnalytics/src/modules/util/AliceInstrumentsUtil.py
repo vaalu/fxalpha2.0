@@ -5,7 +5,7 @@ from modules.AliceUtil import AliceUtil
 from modules.props.ConfigProps import AppLogger, AppProps
 from alice_blue import *
 
-logger = AppLogger()
+logger = AppLogger('AliceInstruments')
 
 class AliceInstruments():
 	access_token = AliceUtil().fetchTokenIfNotExists()

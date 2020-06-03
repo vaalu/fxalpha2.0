@@ -3,6 +3,7 @@ import json
 import configparser
 import logging
 import logging.handlers as handlers
+import urllib
 
 print('Fetching access token from alice blue ant API')
 config = configparser.ConfigParser()
@@ -49,7 +50,8 @@ default_log_level = log_level["info"]
 if log_level_config != None:
 	default_log_level = log_level[log_level_config.lower()]
 
-logging.basicConfig( format='%(asctime)s : %(levelname)s : %(name)s : %(message)s', level=default_log_level )
+# logging.basicConfig( format='%(asctime)s : %(levelname)s : %(name)s : %(message)s', level=default_log_level )
+logging.basicConfig( format='%(asctime)s : %(levelname)s : %(message)s', level=default_log_level )
 logging.log(logging.DEBUG, 'Starting logger')
 
 app_logger = logging.getLogger('alpha_analytics')
@@ -58,24 +60,32 @@ app_logger.setLevel(default_log_level)
 rotating_handler = handlers.RotatingFileHandler(AppProps['LOG_FILE'], maxBytes=5000000, backupCount=200)
 app_logger.addHandler(rotating_handler)
 
+def rerun_curl():
+	app_logger.info('Connection is closed. Hence reopening it again')
+	urllib.request.urlopen('http://localhost:5000/')
+
 class AppLogger():
+	__name=''
+	def __init__(self, name):
+		self.__name = name
 	def debug(self, msg):
-		app_logger.debug(msg)
+		app_logger.debug('%s : %s'%(self.__name, msg))
 		if log_level_config.lower() == "console":
-			print(msg)
+			print('%s : %s'%(self.__name, msg))
 	def error(self, msg):
-		app_logger.error(msg)
+		app_logger.error('%s : %s'%(self.__name, msg))
+		rerun_curl()
 		if log_level_config.lower() == "console":
-			print(msg)
+			print('%s : %s'%(self.__name, msg))
 	def critical(self, msg):
-		app_logger.critical(msg)
+		app_logger.critical('%s : %s'%(self.__name, msg))
 		if log_level_config.lower() == "console":
-			print(msg)
+			print('%s : %s'%(self.__name, msg))
 	def fatal(self, msg):
-		app_logger.fatal(msg)
+		app_logger.fatal('%s : %s'%(self.__name, msg))
 		if log_level_config.lower() == "console":
-			print(msg)
+			print('%s : %s'%(self.__name, msg))
 	def info(self, msg):
-		app_logger.info(msg)
+		app_logger.info('%s : %s'%(self.__name, msg))
 		if log_level_config.lower() == "console":
-			print(msg)
+			print('%s : %s'%(self.__name, msg))
