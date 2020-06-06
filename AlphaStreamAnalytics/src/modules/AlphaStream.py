@@ -8,7 +8,7 @@ from modules.util.SingleInstanceUtil import SingleInstanceUtil
 from modules.props.ConfigProps import AppLogger
 from modules.OHLCProcessor import OHLCProcessor
 
-logger = AppLogger('AlphaStrem')
+logger = AppLogger('AlphaStream')
 
 class AlphaStrem():
 	__single_instance_util = SingleInstanceUtil()
@@ -20,8 +20,9 @@ class AlphaStrem():
 	__all_instrument_ids = list([])
 	__equity_ids = list([])
 	__commodity_ids = list([])
+	__offset = offset = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
 	def __init__(self):
-		print('Initializing stream processing')
+		logger.info('Initializing stream processing')
 		self.__equities = self.__red_util.fetch_processing_instruments('EQUITY')
 		self.__commodities = self.__red_util.fetch_processing_instruments('COMMODITY')
 		self.__all_instruments.extend(self.__equities)
@@ -32,92 +33,50 @@ class AlphaStrem():
 		logger.info(self.__equity_ids)
 		logger.info(self.__commodity_ids)
 		logger.info(self.__all_instrument_ids)
-	def __tz_offset(self):
-		diff = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
-		# Offset difference
-		return diff + 5
-	def __now(self):
-		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')).replace(second=0)
-	def __now_time(self):
-		return time.mktime(self.__now().replace(second=0).timetuple()) - self.__tz_offset()
-	def __equities_end_time(self):
-		end_time_equities = time.mktime((self.__now().replace(hour=15, minute=30, second=0)).timetuple())
-		return end_time_equities - self.__tz_offset()
 	def process_ohlc(self):
-		print('Process starting for ohlc')
-		ohlc_scheduler = sched.scheduler(time.time, time.sleep)
-		ohlc_scheduler_5min = sched.scheduler(time.time, time.sleep)
-		today_date = self.__now()
-		end_time_equities = self.__equities_end_time()
-		logger.info('Equities time-off: %s'%str(end_time_equities))
+		def get_local_date():
+			return datetime.now().astimezone(tz.gettz('Asia/Kolkata'))
+		def get_local_time():
+			return time.mktime(get_local_date().replace(second=0, microsecond=0).timetuple()) # - self.__offset
+		def get_equities_end_time():
+			return time.mktime(get_local_date().replace(hour=15, second=30, microsecond=0).timetuple())
 		def remove_processed_from_cache(sch):
 			OHLCProcessor().remove_processed()
 		# OHLC calc for 5 mins 
 		def ohlc_process_05(sch):
-			duration = 60 * 5
-			diff_overrun = self.__now_time() % duration
-			process_init = self.__now_time() - diff_overrun
-			process_start_05 = self.__now_time() - diff_overrun
-			time_limit = duration
-			logger.info('Processing 5min %f'%(process_start_05))
-			instruments = self.__all_instrument_ids if process_init < end_time_equities else self.__commodity_ids
-			OHLCProcessor().process_all_from_cache_with_limit(instruments,process_start_05,process_start_05+time_limit,5)
-			process_start_05 = process_start_05 + time_limit
-			logger.info('Waiting for next 5M ...%s'%(datetime.fromtimestamp(process_start_05).isoformat() ))
-			curr_time = time.mktime(self.__now().timetuple())
-			if curr_time > process_start_05:
-				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_05-5,process_start_05+(curr_time-process_start_05),1)
-				process_start_05=process_start_05 + curr_time
-			ohlc_scheduler.enter(10,1,remove_processed_from_cache,(sch,))
-		# OHLC calc for 1 min 
+			end_time = get_local_time()
+			minutes_05 = 60 * 5
+			start_time = end_time - minutes_05
+			str_start = datetime.fromtimestamp(start_time).isoformat()
+			str_end = datetime.fromtimestamp(end_time).isoformat()
+			instruments = self.__all_instrument_ids if start_time < get_equities_end_time() else self.__commodity_ids
+			OHLCProcessor().process_all_from_cache_with_limit(instruments,start_time,end_time,5)
+			delta = minutes_05 - (time.mktime(datetime.now().timetuple()) % minutes_05)
+			logger.info('Processing between %f - %f - %s : %s - Next on: %f seconds'%(start_time, end_time, str_start, str_end, delta))
+			ohlc_scheduler.enter(5,1,remove_processed_from_cache,(sch,))
 		def ohlc_process_01(sch):
-			process_init = self.__now_time() + 60
-			process_start_01 = self.__now_time() - 60
-			process_init_time = self.__now_time()
-			time_limit = 60 * 1
-			instruments = self.__all_instrument_ids if process_init < end_time_equities else self.__commodity_ids
-			OHLCProcessor().process_all_from_cache_with_limit(instruments,process_start_01,process_start_01+time_limit,1)
-			process_start_01 = process_start_01 + time_limit
-			logger.info('Waiting for next 1M ...%s'%(datetime.fromtimestamp(process_start_01 + time_limit).isoformat() ))
-			curr_time = time.mktime(self.__now().replace(second=0).timetuple())
-			if curr_time > process_start_01:
-				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01-5,process_start_01+(curr_time-process_start_01),1)
-				process_start_01=process_start_01 + curr_time
-				process_init = self.__now_time() + 60
-			time_delta = (process_init - self.__now_time())
-			logger.info('Next calculation starts in %f seconds'%time_delta)
-			if process_init_time % (60*5) < 60:
-				logger.info('Initializing 5Min calculation')
-				ohlc_scheduler_5min.enter(0,1,ohlc_process_05,(ohlc_scheduler,))
-				ohlc_scheduler_5min.run()
-			ohlc_scheduler.enter(time_delta,1,ohlc_process_01,(sch,))
-		def eod_calc():
-			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day, 9, 0, 0).timetuple())
-			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day, 23, 30, 0).timetuple())
-			OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+60,1)
-			while process_start_01 < day_end:
-				time_limit = 60
-				logger.info('Processing ...%s'%(datetime.fromtimestamp(process_start_01).isoformat() ))
-				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,1)
-				process_start_01 = process_start_01 + time_limit
-		def eod_calc_5():
-			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day, 9, 0, 0).timetuple())
-			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day,23, 30, 0).timetuple())
-			while process_start_01 < day_end:
-				time_limit = 60  * 5
-				logger.info('Processing ...%s'%(datetime.fromtimestamp(process_start_01).isoformat() ))
-				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,5)
-				process_start_01 = process_start_01 + time_limit
-		def eod_save(sch):
-			logger.info('EOD process: saving daily data - 1 min')
-			EODProcessor().initialize_1_min_process(self.__all_instrument_ids)
-		# Initializing one min ohlc
-		zeroth_sec = time.mktime(datetime.now().replace(second=0).timetuple()) + 15
-		print('To be initiated 1M at %s'%(datetime.fromtimestamp(zeroth_sec).isoformat()))
-		curr_time = time.mktime(datetime.now().timetuple())
-		ohlc_scheduler.enter(zeroth_sec-curr_time,1,ohlc_process_01,(ohlc_scheduler,))
-		# eod_save(ohlc_scheduler)
-		# eod_calc()
-		# eod_calc_5()
-		# remove_processed_from_cache(ohlc_scheduler)
+			end_time = get_local_time()
+			minutes_01 = 60
+			start_time = end_time - minutes_01
+			str_start = datetime.fromtimestamp(start_time).isoformat()
+			str_end = datetime.fromtimestamp(end_time).isoformat()
+			instruments = self.__all_instrument_ids if start_time < get_equities_end_time() else self.__commodity_ids
+			OHLCProcessor().process_all_from_cache_with_limit(instruments,start_time,end_time,1)
+			if end_time % 300 == 0:
+				ohlc_scheduler.enter(5,1,ohlc_process_05,(sch,))
+			if (end_time + 60) <= time.mktime(datetime.now().timetuple()):
+				ohlc_scheduler.enter(0,1,ohlc_process_01,(sch,))
+			delta = minutes_01 - (time.mktime(datetime.now().timetuple()) % minutes_01)
+			logger.info('Processing between %f - %f - %s : %s - Next : %f seconds'%(start_time, end_time, str_start, str_end, delta))
+			ohlc_scheduler.enter(delta,1,ohlc_process_01,(sch,))
+
+		ohlc_scheduler = sched.scheduler(time.time, time.sleep)
+		logger.info('Current date: %s'%get_local_date())
+		current_minute = time.mktime(get_local_date().timetuple())
+		delta = 60 - (time.mktime(get_local_date().timetuple()) % 60)
+		logger.info('Time delta: %f'%delta) 
+
+		logger.info('Current millisecond Next : %f'%(delta))
+		ohlc_scheduler.enter(delta,1,ohlc_process_01,(ohlc_scheduler,))
 		ohlc_scheduler.run()
+	

@@ -89,7 +89,7 @@ class RedisUtil():
 			for key in hset_keys:
 				cache_item = self.__red.hgetall(key)
 				if cache_item != None and cache_item != {}:
-					ohlc_data = item_processor.calculate_ohlc(int(cache_item["instrument_token"]), "%s:%i"%(duration_key, start_tstamp), start_tstamp, cache_item)
+					ohlc_data = item_processor.calculate_ohlc(int(cache_item["instrument_token"]), "%s:%i"%(duration_key, end_tstamp), start_tstamp, cache_item)
 				# Delete previously processed keys. Mark the keys for deletion
 				self.__red.set("KEYS:MARK:DEL:%s"%key, key)
 			if ohlc_data != {}:
@@ -107,8 +107,8 @@ class RedisUtil():
 			for key in hset_keys:
 				cache_item = self.__red.hgetall(key)
 				if cache_item != None and cache_item != {}:
-					logger.info('%s # %s # %i %s'%(cache_item["instrument"], "%s:%i"%(duration_key, start_tstamp), start_tstamp, cache_item))
-					ohlc_data = item_processor.calculate_ohlc(instr_key, "%s:%i"%(duration_key, start_tstamp), start_tstamp, cache_item)
+					logger.info('%s # %s # %i %s'%(cache_item["instrument"], "%s:%i"%(duration_key, end_tstamp), start_tstamp, cache_item))
+					ohlc_data = item_processor.calculate_ohlc(instr_key, "%s:%i"%(duration_key, end_tstamp), start_tstamp, cache_item)
 			print(ohlc_data)
 			if ohlc_data != {}:
 				item_processor.final_save(self.__cache_it["save"])
