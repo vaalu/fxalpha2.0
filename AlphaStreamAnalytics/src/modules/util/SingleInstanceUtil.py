@@ -18,6 +18,8 @@ class SingleInstanceUtil():
 		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')).replace(second=0)
 	def __now_time(self):
 		return time.mktime(self.__now().replace(second=0).timetuple()) - self.__tz_offset()
+	def get_today_local_date(self):
+		return datetime.now().astimezone(tz.gettz('Asia/Kolkata'))
 	def today_timings(self):
 		today_date = self.__now()
 		curr_start_time = time.mktime(datetime(today_date.year, today_date.month, today_date.day, 9, 0, 0).timetuple()) -self.__tz_offset()
