@@ -34,6 +34,7 @@ class AlphaStrem():
 		logger.info(self.__commodity_ids)
 		logger.info(self.__all_instrument_ids)
 	def process_ohlc(self):
+		today_date = datetime.now().astimezone(tz.gettz('Asia/Kolkata'))
 		def get_local_date():
 			return datetime.now().astimezone(tz.gettz('Asia/Kolkata'))
 		def get_local_time():
@@ -69,6 +70,26 @@ class AlphaStrem():
 			delta = minutes_01 - (time.mktime(datetime.now().timetuple()) % minutes_01)
 			logger.info('Processing between %f - %f - %s : %s - Next : %f seconds'%(start_time, end_time, str_start, str_end, delta))
 			ohlc_scheduler.enter(delta,1,ohlc_process_01,(sch,))
+		def eod_calc():
+			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3, 9, 0, 0).timetuple())
+			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3, 23, 30, 0).timetuple())
+			OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+60,1)
+			while process_start_01 < day_end:
+				time_limit = 60
+				logger.info('Processing ...%s'%(datetime.fromtimestamp(process_start_01).isoformat() ))
+				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,1)
+				process_start_01 = process_start_01 + time_limit
+		def eod_calc_5():
+			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3, 9, 0, 0).timetuple())
+			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3,23, 30, 0).timetuple())
+			while process_start_01 < day_end:
+				time_limit = 60  * 5
+				logger.info('Processing ...%s'%(datetime.fromtimestamp(process_start_01).isoformat() ))
+				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,5)
+				process_start_01 = process_start_01 + time_limit
+		def eod_save(sch):
+			logger.info('EOD process: saving daily data - 1 min')
+			EODProcessor().initialize_1_min_process(self.__all_instrument_ids)
 
 		ohlc_scheduler = sched.scheduler(time.time, time.sleep)
 		logger.info('Current date: %s'%get_local_date())
@@ -77,6 +98,9 @@ class AlphaStrem():
 		logger.info('Time delta: %f'%delta) 
 
 		logger.info('Current millisecond Next : %f'%(delta))
+		eod_calc()
+		eod_calc_5()
+		remove_processed_from_cache(ohlc_scheduler)
 		ohlc_scheduler.enter(delta,1,ohlc_process_01,(ohlc_scheduler,))
 		ohlc_scheduler.run()
 	
