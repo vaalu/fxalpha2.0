@@ -17,7 +17,7 @@ class DefaultMessageHandlerLegacy():
 		print('Initializing by default')
 		self.__start, self.__end, self.__offset = SingleInstanceUtil().today_timings()
 	def __now_time(self):
-		return time.mktime(datetime.datetime.now().timetuple()) - self.__offset()
+		return time.mktime(datetime.datetime.now().timetuple()) - self.__offset
 	def __getCache(self):
 		return self.__red;
 	

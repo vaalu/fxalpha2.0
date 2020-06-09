@@ -1,5 +1,4 @@
 from modules.props.ConfigProps import AppLogger
-from modules.util.SingleInstanceUtil import SingleInstanceUtil
 from modules.Alice import Alice
 from flask import Flask, request
 try:

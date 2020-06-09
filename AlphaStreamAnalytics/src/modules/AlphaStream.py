@@ -4,15 +4,12 @@ import pytz
 from datetime import datetime
 from dateutil import tz
 from modules.util.RedisUtil import RedisUtil
-from modules.util.SingleInstanceUtil import SingleInstanceUtil
 from modules.props.ConfigProps import AppLogger
 from modules.OHLCProcessor import OHLCProcessor
 
 logger = AppLogger('AlphaStream')
 
 class AlphaStrem():
-	__single_instance_util = SingleInstanceUtil()
-	__instruments_util = __single_instance_util.get_instrument_util()
 	__red_util = RedisUtil()
 	__all_instruments = list([])
 	__equities = list([])
@@ -71,8 +68,8 @@ class AlphaStrem():
 			logger.info('Processing between %f - %f - %s : %s - Next : %f seconds'%(start_time, end_time, str_start, str_end, delta))
 			ohlc_scheduler.enter(delta,1,ohlc_process_01,(sch,))
 		def eod_calc():
-			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3, 9, 0, 0).timetuple())
-			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3, 23, 30, 0).timetuple())
+			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day, 3, 30, 0).timetuple())
+			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day, 18, 0, 0).timetuple())
 			OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+60,1)
 			while process_start_01 < day_end:
 				time_limit = 60
@@ -80,8 +77,8 @@ class AlphaStrem():
 				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,1)
 				process_start_01 = process_start_01 + time_limit
 		def eod_calc_5():
-			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3, 9, 0, 0).timetuple())
-			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day-3,23, 30, 0).timetuple())
+			process_start_01 = time.mktime(datetime(today_date.year, today_date.month, today_date.day, 3, 30, 0).timetuple())
+			day_end = time.mktime(datetime(today_date.year, today_date.month, today_date.day,18, 0, 0).timetuple())
 			while process_start_01 < day_end:
 				time_limit = 60  * 5
 				logger.info('Processing ...%s'%(datetime.fromtimestamp(process_start_01).isoformat() ))
@@ -98,9 +95,9 @@ class AlphaStrem():
 		logger.info('Time delta: %f'%delta) 
 
 		logger.info('Current millisecond Next : %f'%(delta))
-		eod_calc()
-		eod_calc_5()
-		remove_processed_from_cache(ohlc_scheduler)
+		# eod_calc()
+		# eod_calc_5()
+		# remove_processed_from_cache(ohlc_scheduler)
 		ohlc_scheduler.enter(delta,1,ohlc_process_01,(ohlc_scheduler,))
 		ohlc_scheduler.run()
 	

@@ -9,10 +9,18 @@ logger = AppLogger('EODProcessor')
 class EODProcessor():
 	__red_util = RedisUtil()
 	__mongo = MongoUtil()
+	__offset = offset = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
 	def __init__(self):
 		logger.info('Starting EOD Process')
 	def __get_local_date(self):
 		return datetime.now().astimezone(tz.gettz('Asia/Kolkata'))
+	def __get_instruments(self):
+		equities = self.__red_util.fetch_processing_instruments('EQUITY')
+		commodities = self.__red_util.fetch_processing_instruments('COMMODITY')
+		all_instruments = list([])
+		all_instruments.extend(equities)
+		all_instruments.extend(commodities)
+		return equities, commodities, all_instruments
 	def initialize_1_min_process_with_instr(self, instruments):
 		logger.info('Initializing one min process for the day')
 	def initialize_1_min_process(self):
@@ -39,3 +47,5 @@ class EODProcessor():
 		}
 		self.__mongo.eod_save('DailyData', [instr_data])
 		self.initialize_1_min_process_with_instr(all_instruments)
+	def initialize_calculations(self):
+		equities, commodities, all_instruments = self.__get_instruments()
