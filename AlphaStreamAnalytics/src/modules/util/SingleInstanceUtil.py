@@ -12,8 +12,8 @@ class SingleInstanceUtil():
 		logger.info('Initializing singleton instances for the application')
 	def __tz_offset(self):
 		# Offset difference
-		# return datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
-		return 0
+		return datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
+		# return 0
 	def __now(self):
 		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')).replace(second=0)
 	def __now_time(self):
