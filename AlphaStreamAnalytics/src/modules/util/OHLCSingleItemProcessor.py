@@ -1,8 +1,7 @@
 import json
-import datetime
-from modules.props.ConfigProps import AppLogger
+from modules.props.ConfigProps import AppOHLCLogger
 
-logger = AppLogger('OHLCSingleItemProcessor')
+logger = AppOHLCLogger('OHLCSingleItemProcessor')
 class OHLCSingleItemProcessor():
 	__in_mem={
 		"instrument":"",

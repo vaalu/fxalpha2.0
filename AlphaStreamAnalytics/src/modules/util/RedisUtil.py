@@ -1,15 +1,16 @@
 import redis
 import json
-from datetime import datetime
-from modules.props.ConfigProps import AppLogger
+from modules.props.ConfigProps import AppCacheLogger
 from modules.util.OHLCSingleItemProcessor import OHLCSingleItemProcessor
 from modules.util.OHLCItemProcessor import OHLCItemProcessor
+from modules.util.DateTimeUtil import DateTimeUtil
 
-logger = AppLogger('RedisUtil')
+logger = AppCacheLogger('RedisUtil')
 
 class RedisUtil():
 	__red = redis.Redis(host='localhost', port=6379, decode_responses=True)
 	__cache_it = {"duration":"0M"}
+	__date_util = DateTimeUtil()
 	__instrument_types = {
 		"NSE":"EQUITY",
 		"BSE":"EQUITY",
@@ -83,7 +84,8 @@ class RedisUtil():
 		split_search = 2 if end_tstamp%2 == 0 else 1
 		hset_keys = self.split_get_keys(instr_key, start_tstamp, end_tstamp)
 		if hset_keys != None and len(hset_keys) > 0:
-			logger.info('Total number of keys present: %s:%s:1M:%i'%(datetime.fromtimestamp(start_tstamp).isoformat(), instr_key, len(hset_keys)))
+			logger.info('Keys present: %s'%hset_keys)
+			logger.info('Total number of keys present: %s:%s:1M:%i'%(self.__date_util.get_iso_from_timestamp(start_tstamp), instr_key, len(hset_keys)))
 			item_processor = OHLCSingleItemProcessor(instr_key)
 			ohlc_data = {}
 			for key in hset_keys:
@@ -100,7 +102,7 @@ class RedisUtil():
 		index_tsamp = start_tstamp
 		split_search = 2 if end_tstamp%2 == 0 else 1
 		hset_keys = self.split_get_keys_5(instr_key, start_tstamp, end_tstamp)
-		logger.info('Total number of keys present: %s:5M:%i'%(datetime.fromtimestamp(start_tstamp).isoformat(), len(hset_keys)))
+		logger.info('Total number of keys present: %s:5M:%i'%(self.__date_util.get_iso_from_timestamp(start_tstamp), len(hset_keys)))
 		if hset_keys != None and len(hset_keys) > 0:
 			item_processor = OHLCItemProcessor(instr_key)
 			ohlc_data = {}
@@ -154,11 +156,19 @@ class RedisUtil():
 		logger.info('Total count %i'%index)
 		split_keys = self.split_as_batch(self.__red.keys("KEYS:MARK:DEL*"), 500)
 		for batch in split_keys:
-			split_keys_del = list([])
+			split_kv_del = []
+			split_keys_del = []
+			zrange_del_keys = set([])
 			for key in batch:
 				key_for_del = self.__red.get(key)
-				# logger.info('Deleting key : %s'%key_for_del )
-				self.__red.delete(key_for_del)
-				self.__red.delete(key)
-			index = index-1
+				split_keys_del.append(str(key_for_del))
+				split_kv_del.append(str(key))
+				zrange_key = '%s:instrument_keys'%key_for_del.split(":")[0]
+				self.__red.zrem(zrange_key, key_for_del)
+			# logger.info('Keys to be deleted: %i'%len(split_keys_del))
+			if len(split_keys_del) > 0:
+				# logger.info('Marked for deletion: %s'%zrange_del_keys)
+				self.__red.delete(*split_keys_del)
+				self.__red.delete(*split_kv_del)
+				index = index-1
 			logger.info('Deleting from cache. Remaining batches: %i'%index)

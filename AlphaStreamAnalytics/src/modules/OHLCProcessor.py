@@ -1,19 +1,18 @@
-import datetime
-import time
-from modules.props.ConfigProps import AppLogger
+from modules.props.ConfigProps import AppOHLCLogger
 from modules.util.RedisUtil import RedisUtil
+from modules.util.DateTimeUtil import DateTimeUtil
 
-logger = AppLogger('OHLCProcessor')
-
+logger = AppOHLCLogger('OHLCProcessor')
+date_util = DateTimeUtil()
 def process_ohlc(red_util, topic, start_time, end_time, duration, duration_key):
 	while start_time < end_time:
-		# logger.info('Processing... %s:%s'%(topic, datetime.datetime.fromtimestamp(start_time).isoformat()))
+		# logger.info('Processing... %s:%s'%(topic, date_util.get_iso_from_timestamp(start_time)))
 		red_util.fetch_between(topic, start_time, start_time+duration, duration_key)
 		start_time = start_time + duration
 
 def process_ohlc_5(red_util, topic, start_time, end_time, duration, duration_key):
 	while start_time < end_time:
-		logger.info('Processing... %s:%s'%(topic, datetime.datetime.fromtimestamp(start_time).isoformat()))
+		logger.info('Processing... %s:%s'%(topic, date_util.get_iso_from_timestamp(start_time)))
 		red_util.fetch_between_5(topic, start_time, start_time+duration, duration_key)
 		start_time = start_time + duration
 

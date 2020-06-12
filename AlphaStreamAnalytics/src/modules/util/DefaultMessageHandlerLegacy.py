@@ -1,25 +1,25 @@
 import json
 import redis
-import time
 import datetime
-from dateutil import tz
 from modules.props.ConfigProps import AppLogger
-from modules.util.SingleInstanceUtil import SingleInstanceUtil
+from modules.util.DateTimeUtil import DateTimeUtil
 
 logger = AppLogger('DefaultMessageHandlerLegacy')
 
 class DefaultMessageHandlerLegacy():
 	__red = redis.Redis(host='localhost', port=6379)
 	__start = 0
+	__eq_end = 0
 	__end = 0
 	__offset = 0
+	__date_util = DateTimeUtil()
 	def __init__(self):
 		print('Initializing by default')
-		self.__start, self.__end, self.__offset = SingleInstanceUtil().today_timings()
+		self.__start, self.__eq_end, self.__end = self.__date_util.get_market_timings()
 	def __now_time(self):
-		return time.mktime(datetime.datetime.now().timetuple()) - self.__offset
+		return self.__date_util.get_current_local_time()
 	def __getCache(self):
-		return self.__red;
+		return self.__red
 	
 	def __defaultHandler(self, message={}):
 		# Initialize cache

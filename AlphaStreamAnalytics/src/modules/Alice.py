@@ -3,7 +3,6 @@ import csv
 import requests
 import logging
 from alice_blue import *
-from datetime import datetime
 from modules.AliceUtil import AliceUtil
 from modules.util.RedisUtil import RedisUtil
 from modules.props.ConfigProps import AppProps, AppLogger

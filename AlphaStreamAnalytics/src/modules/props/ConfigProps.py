@@ -22,6 +22,7 @@ AppProps = {
 	'URL_WSS' : config.get('ALICE_ANT_SERVER', 'alice.ant.url.wss'), 
 	'ALICE_API_BASE': config.get('ALICE_ANT_API', 'alice.ant.api.base'),
 	'ALICE_PROFILE' : config.get('ALICE_ANT_API', 'alice.ant.api.profile'),
+	'TIME_ZONE' : config.get('DATE_TIME', 'time.zone'),
 	'COMMODITIES_MCX': json.loads(config.get('TRADING_INSTRUMENTS', 'instruments.commodities')),
 	'LEGACY_COMMODITIES':json.loads(config.get('TRADING_INSTRUMENTS', 'legacy.instruments.commodities')), 
 	'ALPHAVANTAGE_KEY':config.get('TRADING_INSTRUMENTS', 'alphavantage.key'), 
@@ -50,8 +51,8 @@ default_log_level = log_level["info"]
 if log_level_config != None:
 	default_log_level = log_level[log_level_config.lower()]
 # logging.basicConfig( format='%(asctime)s : %(levelname)s : %(name)s : %(message)s', level=default_log_level )
-log_format = logging.Formatter('%(asctime)s : %(levelname)s : %(message)s')
-logging.basicConfig( format='%(asctime)s : %(levelname)s : %(message)s', level=default_log_level )
+log_format = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+logging.basicConfig( format='%(asctime)s : %(levelname)s : %(name)s : %(message)s', level=default_log_level )
 rotating_handler = handlers.RotatingFileHandler(AppProps['LOG_FILE'], maxBytes=5000000, backupCount=200)
 rotating_handler.setFormatter(log_format)
 app_logger = logging.getLogger('alpha_analytics')
@@ -59,32 +60,70 @@ app_logger.addHandler(rotating_handler)
 app_logger.setLevel(default_log_level)
 logging.log(logging.DEBUG, 'Starting logger')
 
+def setup_logger(name, log_file, level=logging.INFO):
+	# local_handler = logging.FileHandler(log_file)
+	local_handler = handlers.RotatingFileHandler(log_file, maxBytes=5000000, backupCount=200)
+	local_handler.setFormatter(log_format)
+	logger = logging.getLogger(name)
+	logger.setLevel(level)
+	logger.addHandler(local_handler)
+	return logger
+
+logger_file = '%s-ohlc.log'%(AppProps['LOG_FILE'])
+logger_ohlc = setup_logger('alpha_ohlc', logger_file, default_log_level)
+
+logger_redis_file = '%s-cache.log'%(AppProps['LOG_FILE'])
+logger_redis = setup_logger('alpha_redis', logger_redis_file, default_log_level)
+
 def rerun_curl():
 	app_logger.info('Connection is closed. Hence reopening it again')
 	urllib.request.urlopen('http://localhost:5000/')
 
 class AppLogger():
 	__name=''
+	__logger = app_logger
 	def __init__(self, name):
 		self.__name = name
 	def debug(self, msg):
-		app_logger.debug('%s : %s'%(self.__name, msg))
-		if log_level_config.lower() == "console":
-			print('%s : %s'%(self.__name, msg))
+		self.__logger.debug('%s : %s'%(self.__name, msg))
 	def error(self, msg):
-		app_logger.error('%s : %s'%(self.__name, msg))
+		self.__logger.error('%s : %s'%(self.__name, msg))
 		rerun_curl()
-		if log_level_config.lower() == "console":
-			print('%s : %s'%(self.__name, msg))
 	def critical(self, msg):
-		app_logger.critical('%s : %s'%(self.__name, msg))
-		if log_level_config.lower() == "console":
-			print('%s : %s'%(self.__name, msg))
+		self.__logger.critical('%s : %s'%(self.__name, msg))
 	def fatal(self, msg):
-		app_logger.fatal('%s : %s'%(self.__name, msg))
-		if log_level_config.lower() == "console":
-			print('%s : %s'%(self.__name, msg))
+		self.__logger.fatal('%s : %s'%(self.__name, msg))
 	def info(self, msg):
-		app_logger.info('%s : %s'%(self.__name, msg))
-		if log_level_config.lower() == "console":
-			print('%s : %s'%(self.__name, msg))
+		self.__logger.info('%s : %s'%(self.__name, msg))
+
+class AppOHLCLogger():
+	__name=''
+	__logger = logger_ohlc
+	def __init__(self, name):
+		self.__name = name
+	def debug(self, msg):
+		self.__logger.debug('%s : %s'%(self.__name, msg))
+	def error(self, msg):
+		self.__logger.error('%s : %s'%(self.__name, msg))
+	def critical(self, msg):
+		self.__logger.critical('%s : %s'%(self.__name, msg))
+	def fatal(self, msg):
+		self.__logger.fatal('%s : %s'%(self.__name, msg))
+	def info(self, msg):
+		self.__logger.info('%s : %s'%(self.__name, msg))
+
+class AppCacheLogger():
+	__name=''
+	__logger = logger_redis
+	def __init__(self, name):
+		self.__name = name
+	def debug(self, msg):
+		self.__logger.debug('%s : %s'%(self.__name, msg))
+	def error(self, msg):
+		self.__logger.error('%s : %s'%(self.__name, msg))
+	def critical(self, msg):
+		self.__logger.critical('%s : %s'%(self.__name, msg))
+	def fatal(self, msg):
+		self.__logger.fatal('%s : %s'%(self.__name, msg))
+	def info(self, msg):
+		self.__logger.info('%s : %s'%(self.__name, msg))

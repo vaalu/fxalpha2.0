@@ -1,5 +1,6 @@
-from pandas import pandas as pd
 import ta
+import json
+from pandas import pandas as pd
 
 class BollingerBands():
 	__period = 20
@@ -14,8 +15,5 @@ class BollingerBands():
 		df["bb_bbm"] = indicator.bollinger_mavg()
 		df["bb_bbh"] = indicator.bollinger_hband()
 		df["bb_bbl"] = indicator.bollinger_lband()
-		df["bb_bbhi"] = indicator.bollinger_hband_indicator()
-		df["bb_bbli"] = indicator.bollinger_lband_indicator()
-		print('Data ', data)
-		print('DF ', df)
+		return ["bb_bbh", "bb_bbm", "bb_bbl"], df.to_dict(orient='records')
 		
