@@ -84,7 +84,7 @@ class RedisUtil():
 		split_search = 2 if end_tstamp%2 == 0 else 1
 		hset_keys = self.split_get_keys(instr_key, start_tstamp, end_tstamp)
 		if hset_keys != None and len(hset_keys) > 0:
-			logger.info('Keys present: %s'%hset_keys)
+			# logger.info('Keys present: %s'%hset_keys)
 			logger.info('Total number of keys present: %s:%s:1M:%i'%(self.__date_util.get_iso_from_timestamp(start_tstamp), instr_key, len(hset_keys)))
 			item_processor = OHLCSingleItemProcessor(instr_key)
 			ohlc_data = {}
