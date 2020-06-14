@@ -7,7 +7,7 @@ from modules.util.MongoUtil import MongoUtil
 
 logger = AppLogger('EODProcessor')
 class EODProcessor():
-	__red_util = RedisUtil()
+	__red_util = RedisUtil.get_instance()
 	__mongo = MongoUtil()
 	__offset = offset = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
 	def __init__(self):

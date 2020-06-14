@@ -18,7 +18,7 @@ def process_ohlc_5(red_util, topic, start_time, end_time, duration, duration_key
 
 class OHLCProcessor():
 	
-	__red_util = RedisUtil()
+	__red_util = RedisUtil.get_instance()
 	def process_all_from_cache_with_limit(self, topics_to_process, tstart_time, tend_time, duration):
 		index = tstart_time
 		if topics_to_process != None and duration == 1:

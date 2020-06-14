@@ -1,6 +1,6 @@
 import redis
-from modules.props.ConfigProps import AppLogger
-logger = AppLogger('RedisCalcUtil')
+from modules.props.ConfigProps import AppCacheLogger
+logger = AppCacheLogger('RedisCalcUtil')
 
 class RedisCalcUtil():
 	__red = redis.Redis(host='localhost', port=6379, decode_responses=True)
@@ -13,7 +13,7 @@ class RedisCalcUtil():
 					saved = self.__red.hset(hset_key, key, source_val[key])
 					# logger.info('key: %s | %s | %f'%(hset_key, key, source_val[key]))
 	def fetch_data(self, instrument, keys):
-		logger.info('Fetching instrument details')
+		# logger.info('Fetching instrument details for key %s'%keys)
 		data = []
 		for key in keys:
 			datum = self.__red.hgetall(key)

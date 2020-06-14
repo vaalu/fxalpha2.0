@@ -6,6 +6,18 @@ logger = AppLogger('AliceUtil')
 
 class AliceUtil():
 	retry_count = 0
+	__instance = None
+	@staticmethod
+	def get_instance():
+		if AliceUtil.__instance == None:
+			AliceUtil()
+		return AliceUtil.__instance
+	def __init__(self):
+		if AliceUtil.__instance != None:
+			raise Exception('Redis util is now singleton')
+		else:
+			AliceUtil.__instance = self
+		logger.debug('Initializing redis util')
 	def fetchTokenFromFile(self):
 		alice_token = ''
 		try:
@@ -54,3 +66,4 @@ class AliceUtil():
 		finally:
 			logger.info('Token obtained...')
 		return alice_token
+AliceUtil()

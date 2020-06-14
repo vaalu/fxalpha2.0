@@ -16,7 +16,18 @@ class RedisUtil():
 		"BSE":"EQUITY",
 		"MCX":"COMMODITY"
 	}
+	__instance = None
+	@staticmethod
+	def get_instance():
+		if RedisUtil.__instance == None:
+			RedisUtil()
+		return RedisUtil.__instance
+
 	def __init__(self):
+		if RedisUtil.__instance != None:
+			raise Exception('Redis util is now singleton')
+		else:
+			RedisUtil.__instance = self
 		logger.debug('Initializing redis util')
 		def save_to_cache(source_val):
 			hset_key = source_val["instrument"]
@@ -30,7 +41,6 @@ class RedisUtil():
 			logger.info('ZKey: %s : tstamp: %s'%(zkey, source_val))
 			self.__red.zadd(zkey, {hset_key:float(source_val["timestamp"])})
 		self.__cache_it["save"] = save_to_cache
-	
 	def add_processing_instruments(self, instruments):
 		for instrument in instruments:
 			hset_key = 'INSTRUMENT:%s:%i'%(self.__instrument_types[instrument.exchange], instrument.token)
@@ -172,3 +182,4 @@ class RedisUtil():
 				self.__red.delete(*split_kv_del)
 				index = index-1
 			logger.info('Deleting from cache. Remaining batches: %i'%index)
+RedisUtil()

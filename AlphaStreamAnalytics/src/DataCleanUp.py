@@ -9,7 +9,7 @@ logger = AppLogger('DataCleanUp')
 
 class DataCleanUp():
 	__red = redis.Redis(host='localhost', port=6379, decode_responses=True)
-	__red_util = RedisUtil()
+	__red_util = RedisUtil.get_instance()
 	__all_instrument_ids = list([])
 	__total_batches_for_cleanup = 0
 	def __init__(self):

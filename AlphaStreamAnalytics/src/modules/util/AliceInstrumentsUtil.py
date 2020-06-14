@@ -8,7 +8,7 @@ from alice_blue import *
 logger = AppLogger('AliceInstruments')
 
 class AliceInstruments():
-	access_token = AliceUtil().fetchTokenIfNotExists()
+	access_token = AliceUtil.get_instance().fetchTokenIfNotExists()
 	try:
 		alice = AliceBlue(	username=AppProps['CLIENT_USER'], 
 							password=AppProps['CLIENT_PASSWORD'], 

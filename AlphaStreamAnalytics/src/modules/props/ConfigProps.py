@@ -75,6 +75,9 @@ logger_ohlc = setup_logger('alpha_ohlc', logger_file, default_log_level)
 logger_redis_file = '%s-cache.log'%(AppProps['LOG_FILE'])
 logger_redis = setup_logger('alpha_redis', logger_redis_file, default_log_level)
 
+logger_calc_file = '%s-calc.log'%(AppProps['LOG_FILE'])
+logger_calc = setup_logger('alpha_calc', logger_calc_file, default_log_level)
+
 def rerun_curl():
 	app_logger.info('Connection is closed. Hence reopening it again')
 	urllib.request.urlopen('http://localhost:5000/')
@@ -115,6 +118,22 @@ class AppOHLCLogger():
 class AppCacheLogger():
 	__name=''
 	__logger = logger_redis
+	def __init__(self, name):
+		self.__name = name
+	def debug(self, msg):
+		self.__logger.debug('%s : %s'%(self.__name, msg))
+	def error(self, msg):
+		self.__logger.error('%s : %s'%(self.__name, msg))
+	def critical(self, msg):
+		self.__logger.critical('%s : %s'%(self.__name, msg))
+	def fatal(self, msg):
+		self.__logger.fatal('%s : %s'%(self.__name, msg))
+	def info(self, msg):
+		self.__logger.info('%s : %s'%(self.__name, msg))
+
+class AppCalcLogger():
+	__name=''
+	__logger = logger_calc
 	def __init__(self, name):
 		self.__name = name
 	def debug(self, msg):

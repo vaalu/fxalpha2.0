@@ -13,10 +13,10 @@ logger = AppLogger('Alice')
 logger.debug('Fetching access token from alice blue ant API')
 
 class Alice():
-	access_token = AliceUtil().fetchTokenIfNotExists()
+	access_token = AliceUtil.get_instance().fetchTokenIfNotExists()
 	__single_instance_util = SingleInstanceUtil()
 	__instruments_util = __single_instance_util.get_instrument_util()
-	__red_util = RedisUtil()
+	__red_util = RedisUtil.get_instance()
 	try:
 		alice = AliceBlue(	username=AppProps['CLIENT_USER'], 
 							password=AppProps['CLIENT_PASSWORD'], 
