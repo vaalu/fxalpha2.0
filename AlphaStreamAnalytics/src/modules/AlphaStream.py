@@ -15,7 +15,7 @@ class AlphaStrem():
 	__all_instrument_ids = list([])
 	__equity_ids = list([])
 	__commodity_ids = list([])
-	__date_util = DateTimeUtil()
+	__date_util = DateTimeUtil.get_instance()
 	def __init__(self):
 		logger.info('Initializing stream processing')
 		self.__equities = self.__red_util.fetch_processing_instruments('EQUITY')
@@ -106,9 +106,9 @@ class AlphaStrem():
 		logger.info('Time delta: %f'%delta) 
 
 		logger.info('Current millisecond Next : %f'%(delta))
-		eod_calc()
-		eod_calc_5()
-		remove_processed_from_cache(ohlc_scheduler)
+		# eod_calc()
+		# eod_calc_5()
+		# remove_processed_from_cache(ohlc_scheduler)
 		ohlc_scheduler.enter(delta,1,ohlc_process_01,(ohlc_scheduler,))
 		ohlc_scheduler.run()
 	

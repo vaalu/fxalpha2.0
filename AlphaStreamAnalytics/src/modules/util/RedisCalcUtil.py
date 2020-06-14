@@ -13,12 +13,10 @@ class RedisCalcUtil():
 					saved = self.__red.hset(hset_key, key, source_val[key])
 					# logger.info('key: %s | %s | %f'%(hset_key, key, source_val[key]))
 	def fetch_data(self, instrument, keys):
-		# logger.info('Fetching instrument details for key %s'%keys)
 		data = []
 		for key in keys:
 			datum = self.__red.hgetall(key)
 			if datum != None and datum != {}:
 				datum["close"] = float(datum["close"])
-				# logger.info(datum)
 				data.append(datum)
 		return data

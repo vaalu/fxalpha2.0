@@ -14,6 +14,18 @@ class DateTimeUtil():
 		"hour": __offset//3600 if __time_zone == 'utc' else 0, 
 		"min": (__offset//60)%60 if __time_zone == 'utc' else 0, 
 	}
+	__instance = None
+	
+	@staticmethod
+	def get_instance():
+		if DateTimeUtil.__instance == None:
+			DateTimeUtil()
+		return DateTimeUtil.__instance
+	def __init__(self):
+		if DateTimeUtil.__instance != None:
+			raise Exception('DateTime util is now singleton')
+		else:
+			DateTimeUtil.__instance = self
 	def get_local_date(self):
 		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')) - timedelta(days=5)
 	def get_current_local_time(self):
@@ -45,3 +57,4 @@ class DateTimeUtil():
 		return start_time, end_time_equities, end_time_commodities
 	def get_custom_time(self, hh, mnt, scnd):
 		return time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, hh, mnt, scnd).timetuple())
+DateTimeUtil()

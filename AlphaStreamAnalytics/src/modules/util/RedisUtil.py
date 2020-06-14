@@ -10,7 +10,7 @@ logger = AppCacheLogger('RedisUtil')
 class RedisUtil():
 	__red = redis.Redis(host='localhost', port=6379, decode_responses=True)
 	__cache_it = {"duration":"0M"}
-	__date_util = DateTimeUtil()
+	__date_util = DateTimeUtil.get_instance()
 	__instrument_types = {
 		"NSE":"EQUITY",
 		"BSE":"EQUITY",

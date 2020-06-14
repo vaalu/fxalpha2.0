@@ -12,7 +12,7 @@ class DefaultMessageHandlerLegacy():
 	__eq_end = 0
 	__end = 0
 	__offset = 0
-	__date_util = DateTimeUtil()
+	__date_util = DateTimeUtil.get_instance()
 	def __init__(self):
 		print('Initializing by default')
 		self.__start, self.__eq_end, self.__end = self.__date_util.get_market_timings()
