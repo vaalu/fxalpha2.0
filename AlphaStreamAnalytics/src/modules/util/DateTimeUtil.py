@@ -9,7 +9,7 @@ logger = AppLogger('CalculationsProcessor')
 class DateTimeUtil():
 	__time_zone = AppProps['TIME_ZONE']
 	__offset = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds() if __time_zone == 'utc' else 0
-	__today_date = datetime.now().astimezone(tz.gettz('Asia/Kolkata')) # - timedelta(days=4)
+	__today_date = datetime.now().astimezone(tz.gettz('Asia/Kolkata')) - timedelta(days=5)
 	__offset_delta = {
 		"hour": __offset//3600 if __time_zone == 'utc' else 0, 
 		"min": (__offset//60)%60 if __time_zone == 'utc' else 0, 
@@ -27,7 +27,7 @@ class DateTimeUtil():
 		else:
 			DateTimeUtil.__instance = self
 	def get_local_date(self):
-		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')) - timedelta(days=5)
+		return datetime.now().astimezone(tz.gettz('Asia/Kolkata')) # - timedelta(days=5)
 	def get_current_local_time(self):
 		return time.mktime(datetime.now().timetuple()) - self.__offset
 	def get_local_time(self):
@@ -39,7 +39,7 @@ class DateTimeUtil():
 	def get_iso_from_timestamp(self, time_val):
 		return datetime.fromtimestamp(time_val).isoformat()
 	def get_start_time(self):
-		return time.mktime(self.get_local_date().replace(hour=22, second=0, microsecond=0).timetuple()) - self.__offset
+		return time.mktime(self.get_local_date().replace(hour=9, second=0, microsecond=0).timetuple()) - self.__offset
 	def get_end_time_equities(self):
 		return time.mktime(self.get_local_date().replace(hour=15, second=30, microsecond=0).timetuple()) - self.__offset
 	def get_end_time_commodities(self):
