@@ -7,7 +7,7 @@ from modules.OHLCProcessor import OHLCProcessor
 
 logger = AppOHLCLogger('AlphaStream')
 
-class AlphaStrem():
+class AlphaStream():
 	__red_util = RedisUtil.get_instance()
 	__all_instruments = list([])
 	__equities = list([])
@@ -33,13 +33,10 @@ class AlphaStrem():
 	
 	def process_ohlc(self):
 		today_date = self.__date_util.get_local_date()
-		start_time, equities_end_time, commodities_end_time = 0, 0, 0
+		start_time, equities_end_time, commodities_end_time = self.__date_util.get_market_timings()
 		
 		def get_local_date():
 			return today_date
-		
-		def get_market_timings():
-			start_time, equities_end_time, commodities_end_time = self.__date_util.get_market_timings()
 		
 		def get_equities_end_time():
 			return equities_end_time
@@ -52,8 +49,8 @@ class AlphaStrem():
 			end_time = self.__date_util.get_local_time()
 			minutes_05 = 60 * 5
 			start_time = end_time - minutes_05
-			str_start = self.__date_util.get_iso_from_timestamp(start_time)
-			str_end = self.__date_util.get_iso_from_timestamp(end_time)
+			str_start = self.__date_util.get_from_timestamp(start_time)
+			str_end = self.__date_util.get_from_timestamp(end_time)
 			instruments = self.__all_instrument_ids if start_time < get_equities_end_time() else self.__commodity_ids
 			OHLCProcessor().process_all_from_cache_with_limit(instruments,start_time,end_time,5)
 			delta = minutes_05 - (self.__date_util.get_current_local_time() % minutes_05)
@@ -64,8 +61,8 @@ class AlphaStrem():
 			end_time = self.__date_util.get_local_time()
 			minutes_01 = 60
 			start_time = end_time - minutes_01
-			str_start = self.__date_util.get_iso_from_timestamp(start_time)
-			str_end = self.__date_util.get_iso_from_timestamp(end_time) 
+			str_start = self.__date_util.get_from_timestamp(start_time)
+			str_end = self.__date_util.get_from_timestamp(end_time) 
 			instruments = self.__all_instrument_ids if start_time < get_equities_end_time() else self.__commodity_ids
 			delta = minutes_01 - (self.__date_util.get_current_local_time() % minutes_01) 
 			logger.info('Processing between %f - %f - %s : %s - Next : %f seconds'%(start_time, end_time, str_start, str_end, delta))
@@ -81,7 +78,7 @@ class AlphaStrem():
 			time_limit = 60
 			OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,1)
 			while process_start_01 < day_end:
-				logger.info('Processing ...%s'%(self.__date_util.get_iso_from_timestamp(process_start_01)))
+				logger.info('Processing ...%s'%(self.__date_util.get_from_timestamp(process_start_01)))
 				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,1)
 				process_start_01 = process_start_01 + time_limit
 		
@@ -91,7 +88,7 @@ class AlphaStrem():
 			day_end = self.__date_util.get_custom_time(23, 30, 0) 
 			time_limit = 60  * 5
 			while process_start_01 < day_end:
-				logger.info('Processing ...%s'%(self.__date_util.get_iso_from_timestamp(process_start_01))) 
+				logger.info('Processing ...%s'%(self.__date_util.get_from_timestamp(process_start_01))) 
 				OHLCProcessor().process_all_from_cache_with_limit(self.__all_instrument_ids,process_start_01,process_start_01+time_limit,5)
 				process_start_01 = process_start_01 + time_limit
 		

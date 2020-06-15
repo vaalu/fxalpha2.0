@@ -8,13 +8,9 @@ logger = AppLogger('DefaultMessageHandlerLegacy')
 
 class DefaultMessageHandlerLegacy():
 	__red = redis.Redis(host='localhost', port=6379)
-	__start = 0
-	__eq_end = 0
-	__end = 0
-	__offset = 0
 	__date_util = DateTimeUtil.get_instance()
+	__start, __eq_end, __end = __date_util.get_market_timings()
 	def __init__(self):
-		print('Initializing by default')
 		self.__start, self.__eq_end, self.__end = self.__date_util.get_market_timings()
 	def __now_time(self):
 		return self.__date_util.get_current_local_time()

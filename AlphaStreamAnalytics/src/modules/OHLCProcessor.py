@@ -8,13 +8,13 @@ date_util = DateTimeUtil.get_instance()
 
 def process_ohlc(red_util,  topic, start_time, end_time, duration, duration_key):
 	while start_time < end_time:
-		# logger.info('Processing... %s:%s'%(topic, date_util.get_iso_from_timestamp(start_time)))
+		# logger.info('Processing... %s:%s'%(topic, date_util.get_from_timestamp(end_time)))
 		red_util.fetch_between(topic, start_time, start_time+duration, duration_key)
 		start_time = start_time + duration
 
 def process_ohlc_5(red_util, topic, start_time, end_time, duration, duration_key):
 	while start_time < end_time:
-		logger.info('Processing... %s:%s'%(topic, date_util.get_iso_from_timestamp(start_time)))
+		logger.info('Processing... %s:%s'%(topic, date_util.get_from_timestamp(end_time)))
 		red_util.fetch_between_5(topic, start_time, start_time+duration, duration_key)
 		start_time = start_time + duration
 
