@@ -30,6 +30,12 @@ class AlphaStream():
 		logger.info(self.__equity_ids)
 		logger.info(self.__commodity_ids)
 		logger.info(self.__all_instrument_ids)
+
+		mkt_start, mkt_end_eq, mkt_end_cm = self.__date_util.get_market_timings()
+		dt_start = self.__date_util.get_from_timestamp(mkt_start)
+		dt_end_eq = self.__date_util.get_from_timestamp(mkt_end_eq)
+		dt_end_cm = self.__date_util.get_from_timestamp(mkt_end_cm)
+		logger.info('Market start: %s : eq end: %s : cm end: %s'%(dt_start, dt_end_eq, dt_end_cm))
 	
 	def process_ohlc(self):
 		today_date = self.__date_util.get_local_date()
@@ -46,7 +52,7 @@ class AlphaStream():
 		
 		# OHLC calc for 5 mins 
 		def ohlc_process_05(sch):
-			end_time = self.__date_util.get_local_time()
+			end_time = self.__date_util.get_current_local_time()
 			minutes_05 = 60 * 5
 			start_time = end_time - minutes_05
 			str_start = self.__date_util.get_from_timestamp(start_time)
@@ -58,7 +64,8 @@ class AlphaStream():
 			ohlc_scheduler.enter(5,1,remove_processed_from_cache,(sch,))
 		
 		def ohlc_process_01(sch):
-			end_time = self.__date_util.get_local_time()
+			end_time = self.__date_util.get_current_local_time()
+			# logger.info('End time for starting the process %f'%end_time)
 			minutes_01 = 60
 			start_time = end_time - minutes_01
 			str_start = self.__date_util.get_from_timestamp(start_time)
@@ -69,6 +76,7 @@ class AlphaStream():
 			ohlc_scheduler.enter(delta,1,ohlc_process_01,(sch,))
 			OHLCProcessor().process_all_from_cache_with_limit(instruments,start_time,end_time,1)
 			if end_time % 300 == 0:
+				# logger.info('Processing from end time: %f'%(end_time%300))
 				ohlc_scheduler.enter(5,1,ohlc_process_05,(sch,))
 		
 		def eod_calc():

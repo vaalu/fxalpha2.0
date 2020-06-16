@@ -39,7 +39,7 @@ class CalculationsProcessor():
 		process_init_1 = self.__start_time
 		duration = 60
 		equities, commodities, all_instruments = self.get_instruments()
-		logger.info('Process starts by %i : equities end %i commodities end %i'%(self.__start_time, self.__end_time_equities, self.__end_time_commodities))
+		# logger.info('Process starts by %i : equities end %i commodities end %i'%(self.__start_time, self.__end_time_equities, self.__end_time_commodities))
 		# instrument = '219484'
 		while process_init_1 < self.__end_time_commodities:
 			for instr in all_instruments:
@@ -49,6 +49,7 @@ class CalculationsProcessor():
 			process_init_1 += duration
 	def process_1_min_calc(self, calc_start):
 		duration = 60
+		logger.info('Calculations saved successfully for %f'%calc_start)
 		for instr in self.__all_instruments:
 			instrument = instr["token"]
 			keys_time = ['%s:1M:%i'%(instrument, (calc_start - (duration*index)))for index in range(0, 40)]

@@ -69,4 +69,4 @@ class CalculationsUtil():
 		calc_keys.extend(rsi_keys)
 		if len(rsi_processed) > 0:
 			self.__red_calc.save_processed(calc_keys, rsi_processed[0])
-			logger.info('Calculations saved successfully: %s'%rsi_processed[0]["instrument"])
+			# logger.info('Calculations saved successfully: %s'%rsi_processed[0]["instrument"])
