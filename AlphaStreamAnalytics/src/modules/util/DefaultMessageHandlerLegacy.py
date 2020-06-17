@@ -1,10 +1,10 @@
 import json
 import redis
 import datetime
-from modules.props.ConfigProps import AppLogger
+from modules.props.ConfigProps import AppStreamLogger
 from modules.util.DateTimeUtil import DateTimeUtil
 
-logger = AppLogger('DefaultMessageHandlerLegacy')
+logger = AppStreamLogger.get_instance()
 
 class DefaultMessageHandlerLegacy():
 	__red = redis.Redis(host='localhost', port=6379)

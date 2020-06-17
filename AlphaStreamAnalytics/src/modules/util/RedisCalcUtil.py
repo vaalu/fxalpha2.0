@@ -18,5 +18,7 @@ class RedisCalcUtil():
 			datum = self.__red.hgetall(key)
 			if datum != None and datum != {}:
 				datum["close"] = float(datum["close"])
+				datum["high"] = float(datum["high"])
+				datum["low"] = float(datum["low"])
 				data.append(datum)
 		return data

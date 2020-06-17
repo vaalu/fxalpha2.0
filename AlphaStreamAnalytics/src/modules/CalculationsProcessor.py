@@ -1,12 +1,12 @@
 import pytz
 from datetime import datetime
 from dateutil import tz
-from modules.props.ConfigProps import AppLogger, AppProps
+from modules.props.ConfigProps import AppCalcLogger, AppProps
 from modules.util.CalculationsUtil import CalculationsUtil
 from modules.util.DateTimeUtil import DateTimeUtil
 from modules.util.RedisUtil import RedisUtil
 
-logger = AppLogger('CalculationsProcessor')
+logger = AppCalcLogger('CalculationsProcessor')
 
 class CalculationsProcessor():
 	__calculations_util = None
@@ -53,7 +53,14 @@ class CalculationsProcessor():
 		for instr in self.__all_instruments:
 			instrument = instr["token"]
 			keys_time = ['%s:1M:%i'%(instrument, (calc_start - (duration*index)))for index in range(0, 40)]
-			self.__calculations_util.calculate_1_min(instrument, keys_time)
+			self.__calculations_util.calculate(instrument, keys_time)
+	def process_5_min_calc(self, calc_start):
+		duration = 60*5
+		logger.info('Calculations saved successfully for %f'%calc_start)
+		for instr in self.__all_instruments:
+			instrument = instr["token"]
+			keys_time = ['%s:5M:%i'%(instrument, (calc_start - (duration*index)))for index in range(0, 40)]
+			self.__calculations_util.calculate(instrument, keys_time)
 CalculationsProcessor()
 
 

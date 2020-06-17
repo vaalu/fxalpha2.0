@@ -33,5 +33,6 @@ class OHLCProcessor():
 			limit = 60 * duration # 5 min
 			for topic in topics_to_process:
 				process_ohlc_5(self.__red_util, topic, index, tend_time, limit, "%iM"%(duration))
+			self.__calc_processor.process_5_min_calc(tend_time)
 	def remove_processed(self):
 		self.__red_util.remove_processed()
