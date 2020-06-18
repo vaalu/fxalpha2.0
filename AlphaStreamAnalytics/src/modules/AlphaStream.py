@@ -57,11 +57,13 @@ class AlphaStream():
 			start_time = end_time - minutes_05
 			str_start = self.__date_util.get_from_timestamp(start_time)
 			str_end = self.__date_util.get_from_timestamp(end_time)
-			instruments = self.__all_instrument_ids if start_time < get_equities_end_time() else self.__commodity_ids
-			OHLCProcessor().process_all_from_cache_with_limit(instruments,start_time,end_time,5)
 			delta = minutes_05 - (self.__date_util.get_current_local_time() % minutes_05)
 			logger.info('Processing between %f - %f - %s : %s - Next on: %f seconds'%(start_time, end_time, str_start, str_end, delta))
+			instruments = self.__all_instrument_ids if start_time < get_equities_end_time() else self.__commodity_ids
+			OHLCProcessor().process_all_from_cache_with_limit(instruments,start_time,end_time,5)
 			ohlc_scheduler.enter(5,1,remove_processed_from_cache,(sch,))
+			delta = minutes_05 - (self.__date_util.get_current_local_time() % minutes_05)
+			logger.info('Processed 5 min. Next calc in %f seconds'%delta)
 		
 		def ohlc_process_01(sch):
 			end_time = self.__date_util.get_current_local_time()
@@ -77,7 +79,7 @@ class AlphaStream():
 			OHLCProcessor().process_all_from_cache_with_limit(instruments,start_time,end_time,1)
 			if end_time % 300 == 0:
 				# logger.info('Processing from end time: %f'%(end_time%300))
-				ohlc_scheduler.enter(5,1,ohlc_process_05,(sch,))
+				ohlc_scheduler.enter(0,1,ohlc_process_05,(sch,))
 		
 		def eod_calc():
 			process_start_01 = self.__date_util.get_custom_time(9, 0, 0) 
