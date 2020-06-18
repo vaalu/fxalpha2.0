@@ -15,4 +15,3 @@ websockets
 redis
 hiredis
 pymongo
-Ta-Lib
