@@ -100,11 +100,9 @@ class AliceWebSocket():
 		# data_from_resource_server(access_token)
 	
 	def on_error(ws, error):
-		logger.error('Error occurred:')
-		logger.error(error)
+		logger.error('Websocket Error occurred: %s'%error)
 		thread.exit()
 	
 	def on_close(ws):
-		logger.info('...Feed data socket closed...')
-		logger.info('Retrying again...')
+		logger.error('...Feed data socket closed...')
 		thread.exit()

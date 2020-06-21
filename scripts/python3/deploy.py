@@ -36,6 +36,7 @@ alphavantage_key =  config.get('ALICE', 'deploy.alphavantage.key')
 kafka_url=config.get('KAFKA', 'deploy.kafka.server.url')
 kafka_port=config.get('KAFKA', 'deploy.kafka.server.port')
 
+log_dir=config.get('LOGGER', 'deploy.logging.dir')
 log_file=config.get('LOGGER', 'deploy.logging.file')
 log_level=config.get('LOGGER', 'deploy.logging.level')
 
@@ -189,6 +190,7 @@ def update_properties_alpha_analytics():
 	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.secret', alice_client_secret)
 	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.password', alice_client_password)
 	alice_config.set('TRADING_INSTRUMENTS', 'alphavantage.key', alphavantage_key)
+	alice_config.set('LOGGER', 'logging.dir', log_dir)
 	alice_config.set('LOGGER', 'logging.file', log_file)
 	alice_config.set('LOGGER', 'logging.level', log_level)
 	alice_config.set('MONGO', 'mongo.server.url', mongo_url)

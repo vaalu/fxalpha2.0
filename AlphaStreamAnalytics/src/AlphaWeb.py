@@ -11,10 +11,10 @@ app = Flask(__name__)
 
 logger = AppLogger('AlphaWeb')
 alice = Alice()
+alice.initiaize_instruments()
 
 @app.route("/",methods=['GET'])
 def invoke():
-	alice.initiaize_instruments()
 	def runF(*args):
 		alice.fetchCommoditiesLive()
 		logger.info('Initialized for commodities data')
@@ -23,7 +23,6 @@ def invoke():
 		alice.fetchNifty50Live()
 		logger.info('Initialized for equities data')
 	thread.start_new_thread(runE, ())
-
 	return 'Alpha connected with token:%s'%(alice.access_token)
 
 @app.route("/shutdown",methods=['GET'])

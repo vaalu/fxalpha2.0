@@ -23,9 +23,10 @@ class DataExportProcessor():
 		except OSError as e:
 			pass
 		try:
+			logger.info('Writing data: %s'%data)
 			bkp_file = ('%s/%s-%s-%i-min.data.json'%(backup_path, instr_token, instr_name, duration)).replace(" ", "-")
-			with open(bkp_file, 'a+') as file:
-				file.write(str(data))
+			with open(bkp_file, 'w') as file:
+				json.dump(data, file)
 				file.close()
 		except:
 			logger.info('Unable to create backup file')
@@ -41,7 +42,7 @@ class DataExportProcessor():
 			data = list([])
 			while init_time < end_commodities:
 				init_time += calc_min
-				data_keys.append('%s:1M:%i'%(instr_token, init_time))
+				data_keys.append('%s:%iM:%i'%(instr_token, duration, init_time))
 			split_keys = self.split_as_batch(data_keys, int(60/duration))
 			for batch_keys in split_keys:
 				data.extend(self.__red_calc_util.fetch_data(instr_token, batch_keys))

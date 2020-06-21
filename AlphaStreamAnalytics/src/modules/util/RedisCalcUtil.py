@@ -22,3 +22,13 @@ class RedisCalcUtil():
 				datum["low"] = float(datum["low"])
 				data.append(datum)
 		return data
+	def save_imported(self, data):
+		for datum in data:
+			rkey = datum["instrument"]
+			split_key = rkey.split(':')
+			duration = split_key[1]
+			timestamp = split_key[2]
+			instr_key = datum["instrument_key"]
+			saved = self.__red.hmset(rkey, datum)
+			zkey = 'OHLC:KEY:%s:%s'%(duration,instr_key)
+			self.__red.zadd(zkey, {rkey:float(timestamp)})

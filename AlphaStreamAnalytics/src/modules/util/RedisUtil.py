@@ -31,12 +31,7 @@ class RedisUtil():
 		logger.debug('Initializing redis util')
 		def save_to_cache(source_val):
 			hset_key = source_val["instrument"]
-			self.__red.hset(hset_key, "instrument", source_val["instrument"])
-			self.__red.hset(hset_key, "instrument_key", source_val["instrument_key"])
-			self.__red.hset(hset_key, "open", source_val["open"])
-			self.__red.hset(hset_key, "high", source_val["high"])
-			self.__red.hset(hset_key, "low", source_val["low"])
-			self.__red.hset(hset_key, "close", source_val["close"])
+			self.__red.hmset(hset_key, source_val)
 			zkey = 'OHLC:KEY:%s:%s'%(self.__cache_it["duration"],source_val["instrument_key"])
 			logger.info('ZKey: %s : tstamp: %s'%(zkey, source_val))
 			self.__red.zadd(zkey, {hset_key:float(source_val["timestamp"])})
@@ -60,7 +55,13 @@ class RedisUtil():
 			instr_detail = self.__red.hgetall(key)
 			instruments.append(instr_detail)
 		return instruments
-
+	def fetch_all_instruments(self):
+		all_instruments = []
+		equities = self.fetch_processing_instruments('EQUITY')
+		commodities = self.fetch_processing_instruments('COMMODITY')
+		all_instruments.extend(equities)
+		all_instruments.extend(commodities)
+		return equities, commodities, all_instruments
 	def split_get_keys(self, instr_key, start_tstamp, end_tstamp):
 		hset_keys = list([])
 		remaining = end_tstamp % 30

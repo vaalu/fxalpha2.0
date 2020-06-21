@@ -1,51 +1,39 @@
 from datetime import datetime
 from dateutil import tz
 import pytz
+from modules.OHLCProcessor import OHLCProcessor
 from modules.props.ConfigProps import AppProps, AppLogger
 from modules.util.RedisUtil import RedisUtil
-from modules.util.MongoUtil import MongoUtil
+from modules.util.DateTimeUtil import DateTimeUtil
 
 logger = AppLogger('EODProcessor')
 class EODProcessor():
 	__red_util = RedisUtil.get_instance()
-	__mongo = MongoUtil()
+	__red = RedisUtil.get_instance()
+	__date_util = DateTimeUtil.get_instance()
 	__offset = offset = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds()
 	def __init__(self):
 		logger.info('Starting EOD Process')
 	def __get_local_date(self):
 		return datetime.now().astimezone(tz.gettz('Asia/Kolkata'))
-	def __get_instruments(self):
-		equities = self.__red_util.fetch_processing_instruments('EQUITY')
-		commodities = self.__red_util.fetch_processing_instruments('COMMODITY')
-		all_instruments = list([])
-		all_instruments.extend(equities)
-		all_instruments.extend(commodities)
-		return equities, commodities, all_instruments
-	def initialize_1_min_process_with_instr(self, instruments):
+	def initialize_process(self, instruments):
 		logger.info('Initializing one min process for the day')
-	def initialize_1_min_process(self):
-		logger.info('Initializing one min process for the day')
-		equities = self.__red_util.fetch_processing_instruments('EQUITY')
-		commodities = self.__red_util.fetch_processing_instruments('COMMODITY')
-		all_instruments = list([])
-		for instrument in equities:
-			all_instruments.append({
-				'instrument':instrument["token"],
-				'type':'EQUITY', 
-				'detail':instrument
-			})
-		for instrument in commodities:
-			all_instruments.append({
-				'instrument':instrument["token"],
-				'type':'COMMODITY', 
-				'detail':instrument
-			})
-		current_date = str(self.__get_local_date().strftime('%Y-%m-%d'))
-		instr_data = {
-			"date":current_date,
-			"instruments":all_instruments
-		}
-		self.__mongo.eod_save('DailyData', [instr_data])
-		self.initialize_1_min_process_with_instr(all_instruments)
+		start_time, end_equities, end_commodities = self.__date_util.get_market_timings()
+		all_instrument_ids = []
+		for instrument in instruments:
+			all_instrument_ids.append(instrument["token"])
+		time_limit = 60 * 1
+		init_time = start_time
+		logger.info('Calculating 5 min ohlc data')
+		while init_time < end_commodities:
+			OHLCProcessor().process_all_from_cache_with_limit(all_instrument_ids,init_time,init_time+time_limit,1)
+			init_time += time_limit
+		init_time = start_time
+		time_limit = 60 * 5
+		while init_time < end_commodities:
+			OHLCProcessor().process_all_from_cache_with_limit(all_instrument_ids,init_time,init_time+time_limit,5)
+			init_time += time_limit
+
 	def initialize_calculations(self):
-		equities, commodities, all_instruments = self.__get_instruments()
+		equities, commodities, all_instruments = self.__red.fetch_all_instruments()
+		self.initialize_process(all_instruments)

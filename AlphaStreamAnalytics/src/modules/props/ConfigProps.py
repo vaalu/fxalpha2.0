@@ -4,6 +4,11 @@ import configparser
 import logging
 import logging.handlers as handlers
 import urllib
+try:
+	import thread
+except ImportError:
+	import _thread as thread
+import time
 
 print('Fetching access token from alice blue ant API')
 config = configparser.ConfigParser()
@@ -86,6 +91,7 @@ logger_backup_file = '%s-data-bkp.log'%(AppProps['LOG_FILE'])
 logger_backup = setup_logger('backup', logger_backup_file, default_log_level)
 
 def rerun_curl():
+	time.sleep(10)
 	app_logger.info('Connection is closed. Hence reopening it again')
 	urllib.request.urlopen('http://localhost:5000/')
 
@@ -98,7 +104,8 @@ class AppLogger():
 		self.__logger.debug('%s : %s'%(self.__name, msg))
 	def error(self, msg):
 		self.__logger.error('%s : %s'%(self.__name, msg))
-		rerun_curl()
+		if '...Feed data socket closed...' in msg or 'Websocket Error' in msg:
+			rerun_curl()
 	def critical(self, msg):
 		self.__logger.critical('%s : %s'%(self.__name, msg))
 	def fatal(self, msg):
