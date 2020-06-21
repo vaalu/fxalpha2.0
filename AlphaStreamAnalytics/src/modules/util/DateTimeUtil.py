@@ -9,7 +9,7 @@ logger = AppLogger('DateTimeUtil')
 class DateTimeUtil():
 	__time_zone = AppProps['TIME_ZONE']
 	__offset = datetime.now(pytz.timezone('Asia/Kolkata')).utcoffset().total_seconds() if __time_zone == 'utc' else 0
-	__today_date = datetime.now().astimezone(tz.gettz('Asia/Kolkata')) - timedelta(days=2)
+	__today_date = datetime.now().astimezone(tz.gettz('Asia/Kolkata')) # - timedelta(days=2)
 	__offset_delta = {
 		"hour": __offset//3600 if __time_zone == 'utc' else 0, 
 		"min": (__offset//60)%60 if __time_zone == 'utc' else 0, 
@@ -27,7 +27,7 @@ class DateTimeUtil():
 		else:
 			DateTimeUtil.__instance = self
 	def get_local_date(self):
-		local_dt = datetime.now().astimezone(tz.gettz('Asia/Kolkata')) - timedelta(days=2)
+		local_dt = datetime.now().astimezone(tz.gettz('Asia/Kolkata')) # - timedelta(days=2)
 		return local_dt 
 	def get_current_local_time(self):
 		return time.mktime(self.get_local_date().replace(second=0,microsecond=0).timetuple()) - self.__offset
