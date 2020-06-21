@@ -27,6 +27,8 @@ AppProps = {
 	'URL_WSS' : config.get('ALICE_ANT_SERVER', 'alice.ant.url.wss'), 
 	'ALICE_API_BASE': config.get('ALICE_ANT_API', 'alice.ant.api.base'),
 	'ALICE_PROFILE' : config.get('ALICE_ANT_API', 'alice.ant.api.profile'),
+	'KITE_API_KEY' : config.get('KTIE_API', 'kite.api.key'),
+	'KITE_API_SECRET' : config.get('KITE_API', 'ktie.api.secret'),
 	'TIME_ZONE' : config.get('DATE_TIME', 'time.zone'),
 	'COMMODITIES_MCX': json.loads(config.get('TRADING_INSTRUMENTS', 'instruments.commodities')),
 	'LEGACY_COMMODITIES':json.loads(config.get('TRADING_INSTRUMENTS', 'legacy.instruments.commodities')), 
@@ -89,6 +91,9 @@ logger_stream = setup_logger('alpha_stream', logger_stream_file, default_log_lev
 
 logger_backup_file = '%s-data-bkp.log'%(AppProps['LOG_FILE'])
 logger_backup = setup_logger('backup', logger_backup_file, default_log_level)
+
+logger_kite_file = '%s-kite.log'%(AppProps['LOG_FILE'])
+logger_kite = setup_logger('kite', logger_kite_file, default_log_level)
 
 def rerun_curl():
 	time.sleep(10)
@@ -215,3 +220,31 @@ class AppDataBackupLogger():
 		self.__logger.info('%s : %s'%(self.__name, msg))
 
 AppDataBackupLogger()
+
+
+class AppKiteLogger():
+	__name='AppKiteLogger'
+	__logger = logger_kite
+	__instance = None
+	@staticmethod
+	def get_instance():
+		if AppKiteLogger.__instance == None:
+			AppKiteLogger()
+		return AppKiteLogger.__instance
+	def __init__(self):
+		if AppKiteLogger.__instance != None:
+			raise Exception('AppKiteLogger is now singleton')
+		else:
+			AppKiteLogger.__instance = self
+	def debug(self, msg):
+		self.__logger.debug('%s : %s'%(self.__name, msg))
+	def error(self, msg):
+		self.__logger.error('%s : %s'%(self.__name, msg))
+	def critical(self, msg):
+		self.__logger.critical('%s : %s'%(self.__name, msg))
+	def fatal(self, msg):
+		self.__logger.fatal('%s : %s'%(self.__name, msg))
+	def info(self, msg):
+		self.__logger.info('%s : %s'%(self.__name, msg))
+
+AppKiteLogger()
