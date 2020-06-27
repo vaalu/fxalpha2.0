@@ -86,3 +86,5 @@ redis-cli FLUSHALL
 https://jaceklaskowski.gitbooks.io/apache-kafka/kafka-properties-bootstrap-servers.html
 https://redislabs.com/blog/get-sql-like-experience-redis/
 https://pythontic.com/database/redis/sorted%20set%20-%20add%20and%20remove%20elements
+https://technical-analysis-library-in-python.readthedocs.io/en/latest/ta.html
+https://stackoverflow.com/questions/11232230/logging-to-two-files-with-different-settings

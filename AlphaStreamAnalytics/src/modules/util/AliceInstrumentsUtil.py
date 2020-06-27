@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from modules.AliceUtil import AliceUtil
 from modules.props.ConfigProps import AppLogger, AppProps
 from alice_blue import *
+import pandas as pd
 
 logger = AppLogger('AliceInstruments')
 
@@ -35,21 +36,31 @@ class AliceInstruments():
 			instr_symbol = '%s %s FUT'%(symbol, mon_str)
 		logger.info('Expiry symbol: %s'%instr_symbol)
 		return instr_symbol
+	def process_csv_content(self, nifty50_list):
+		nifty50_instruments = []
+		consolidated_nifty_50_securities = []
+		for equity in nifty50_list:
+			instr = self.alice.get_instrument_by_symbol(exchange='NSE', symbol=equity[2])
+			consolidated_nifty_50_securities.append(instr)
+			nifty50_instruments.append([1, instr.token])
+		return nifty50_instruments, consolidated_nifty_50_securities
 	def fetchNifty50(self):
 		nifty50_list = list([])
-		with requests.Session() as csv_session:
-			nifty50_csv = csv_session.get(AppProps['NIFTY50_URL'])
-			decoded_content = nifty50_csv.content.decode('utf-8')
-			cr = csv.reader(decoded_content.splitlines(), delimiter=',')
-			next(cr)
-			nifty50_list = list(cr)
-			nifty50_instruments = []
-			consolidated_nifty_50_securities = []
-			for equity in nifty50_list:
-				instr = self.alice.get_instrument_by_symbol(exchange='NSE', symbol=equity[2])
-				consolidated_nifty_50_securities.append(instr)
-				nifty50_instruments.append([1, instr.token])
-			return nifty50_instruments, consolidated_nifty_50_securities
+		nifty_50_url = AppProps['NIFTY50_URL']
+		nifty_50_file = AppProps['NIFTY50_FILE']
+		# Download CSV file from Nifty50. If unable to download, then fallback to existing nifty50 file.
+		try:
+			csv_df = pd.read_csv(nifty_50_url)
+			csv_df.head()
+			csv_df.to_csv(nifty_50_file, index=False)
+		except OSError as err:
+			logger.error('Unable to fetch Nifty50. Hence fallback to existing file: %s'%err)
+		with open(nifty_50_file, 'r') as csv_file:
+			reader = csv.reader(csv_file)
+			next(reader)
+			for row in reader:
+				nifty50_list.append(row)
+		return self.process_csv_content(nifty50_list)
 	def fetch_commodities(self):
 		logger.info('Fetching required commodities')
 		selected_commodities = AppProps['COMMODITIES_MCX']

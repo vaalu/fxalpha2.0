@@ -35,4 +35,6 @@ class DataImportProcessor():
 			logger.info('Instrument %s : %s'%(token, symbol))
 			data = self.read_from_file(token, symbol, 1)
 			self.__redis_util.save_imported(data)
+			data = self.read_from_file(token, symbol, 5)
+			self.__redis_util.save_imported(data)
 

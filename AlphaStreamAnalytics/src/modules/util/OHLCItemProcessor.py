@@ -33,7 +33,7 @@ class OHLCItemProcessor():
 		return curr if curr==upd else curr if curr > upd else upd
 
 	def calculate_ohlc(self, instrument_token, spec_duration, timestamp, json_data):
-		logger.info('Processing for %s:%i'%(instrument_token, timestamp))
+		# logger.info('Processing for %s:%i'%(instrument_token, timestamp))
 		ts_key = '%s:%s'%(instrument_token, spec_duration)
 		if ts_key == self.__in_mem["instrument"]:
 			self.__in_mem["high"] = self.find_high(float(self.__in_mem["high"]), float(json_data["high"]))

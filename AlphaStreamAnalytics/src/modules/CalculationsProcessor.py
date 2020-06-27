@@ -49,18 +49,18 @@ class CalculationsProcessor():
 			process_init_1 += duration
 	def process_1_min_calc(self, calc_start):
 		duration = 60
-		logger.info('Calculations saved successfully for %f'%calc_start)
 		for instr in self.__all_instruments:
 			instrument = instr["token"]
 			keys_time = ['%s:1M:%i'%(instrument, (calc_start - (duration*index)))for index in range(0, 40)]
 			self.__calculations_util.calculate(instrument, keys_time)
+		logger.info('Calculations saved successfully for %f'%calc_start)
 	def process_5_min_calc(self, calc_start):
 		duration = 60*5
-		logger.info('Calculations saved successfully for %f'%calc_start)
 		for instr in self.__all_instruments:
 			instrument = instr["token"]
 			keys_time = ['%s:5M:%i'%(instrument, (calc_start - (duration*index)))for index in range(0, 40)]
 			self.__calculations_util.calculate(instrument, keys_time)
+		logger.info('Calculations saved successfully for %f'%calc_start)
 CalculationsProcessor()
 
 

@@ -28,13 +28,14 @@ AppProps = {
 	'ALICE_API_BASE': config.get('ALICE_ANT_API', 'alice.ant.api.base'),
 	'ALICE_PROFILE' : config.get('ALICE_ANT_API', 'alice.ant.api.profile'),
 	'KITE_API_KEY' : config.get('KITE', 'kite.api.key'),
-	'KITE_API_SECRET' : config.get('KITE', 'ktie.api.secret'),
+	'KITE_API_SECRET' : config.get('KITE', 'kite.api.secret'),
 	'TIME_ZONE' : config.get('DATE_TIME', 'time.zone'),
 	'COMMODITIES_MCX': json.loads(config.get('TRADING_INSTRUMENTS', 'instruments.commodities')),
 	'LEGACY_COMMODITIES':json.loads(config.get('TRADING_INSTRUMENTS', 'legacy.instruments.commodities')), 
 	'ALPHAVANTAGE_KEY':config.get('TRADING_INSTRUMENTS', 'alphavantage.key'), 
 	'ALPHAVANTAGE_URL':config.get('TRADING_INSTRUMENTS', 'alphavantage.url'), 
 	'NIFTY50_URL':config.get('TRADING_INSTRUMENTS', 'nifty50.url'), 
+	'NIFTY50_FILE':config.get('TRADING_INSTRUMENTS', 'static.equities'), 
 	'MONGO_URL':config.get('MONGO', 'mongo.server.url'), 
 	'MONGO_PORT':config.get('MONGO', 'mongo.server.port'), 
 	'MONGO_USER':config.get('MONGO', 'mongo.user'), 
@@ -95,10 +96,29 @@ logger_backup = setup_logger('backup', logger_backup_file, default_log_level)
 logger_kite_file = '%s-kite.log'%(AppProps['LOG_FILE'])
 logger_kite = setup_logger('kite', logger_kite_file, default_log_level)
 
+logger_strategy_file = '%s-strategy.log'%(AppProps['LOG_FILE'])
+logger_strategy = setup_logger('strategy', logger_strategy_file, default_log_level)
+
 def rerun_curl():
 	time.sleep(10)
 	app_logger.info('Connection is closed. Hence reopening it again')
 	urllib.request.urlopen('http://localhost:5000/')
+
+class AppStrategyLogger():
+	__name=''
+	__logger = logger_strategy
+	def __init__(self, name):
+		self.__name = name
+	def debug(self, msg):
+		self.__logger.debug('%s : %s'%(self.__name, msg))
+	def error(self, msg):
+		self.__logger.error('%s : %s'%(self.__name, msg))
+	def critical(self, msg):
+		self.__logger.critical('%s : %s'%(self.__name, msg))
+	def fatal(self, msg):
+		self.__logger.fatal('%s : %s'%(self.__name, msg))
+	def info(self, msg):
+		self.__logger.info('%s : %s'%(self.__name, msg))
 
 class AppLogger():
 	__name=''

@@ -33,7 +33,7 @@ class RedisUtil():
 			hset_key = source_val["instrument"]
 			self.__red.hmset(hset_key, source_val)
 			zkey = 'OHLC:KEY:%s:%s'%(self.__cache_it["duration"],source_val["instrument_key"])
-			logger.info('ZKey: %s : tstamp: %s'%(zkey, source_val))
+			# logger.info('ZKey: %s : tstamp: %s'%(zkey, source_val))
 			self.__red.zadd(zkey, {hset_key:float(source_val["timestamp"])})
 		self.__cache_it["save"] = save_to_cache
 	def add_processing_instruments(self, instruments):
@@ -96,7 +96,7 @@ class RedisUtil():
 		hset_keys = self.split_get_keys(instr_key, start_tstamp, end_tstamp)
 		if hset_keys != None and len(hset_keys) > 0:
 			# logger.info('Keys present: %s'%hset_keys)
-			logger.info('Total number of keys present: %s:%s:1M:%i'%(self.__date_util.get_from_timestamp(end_tstamp), instr_key, len(hset_keys)))
+			# logger.info('Total keys: %s:%s:1M:%i'%(self.__date_util.get_from_timestamp(end_tstamp), instr_key, len(hset_keys)))
 			item_processor = OHLCSingleItemProcessor(instr_key)
 			ohlc_data = {}
 			for key in hset_keys:
@@ -113,14 +113,14 @@ class RedisUtil():
 		index_tsamp = start_tstamp
 		split_search = 2 if end_tstamp%2 == 0 else 1
 		hset_keys = self.split_get_keys_5(instr_key, start_tstamp, end_tstamp)
-		logger.info('Total number of keys present: %s:5M:%i'%(self.__date_util.get_from_timestamp(end_tstamp), len(hset_keys)))
+		# logger.info('Total keys: %s:5M:%i'%(self.__date_util.get_from_timestamp(end_tstamp), len(hset_keys)))
 		if hset_keys != None and len(hset_keys) > 0:
 			item_processor = OHLCItemProcessor(instr_key)
 			ohlc_data = {}
 			for key in hset_keys:
 				cache_item = self.__red.hgetall(key)
 				if cache_item != None and cache_item != {}:
-					logger.info('%s # %s # %i %s'%(cache_item["instrument"], "%s:%i"%(duration_key, end_tstamp), start_tstamp, cache_item))
+					# logger.info('%s # %s # %i %s'%(cache_item["instrument"], "%s:%i"%(duration_key, end_tstamp), start_tstamp, cache_item))
 					ohlc_data = item_processor.calculate_ohlc(instr_key, "%s:%i"%(duration_key, end_tstamp), start_tstamp, cache_item)
 			print(ohlc_data)
 			if ohlc_data != {}:

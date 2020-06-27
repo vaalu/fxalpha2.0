@@ -106,4 +106,4 @@ class CalculationsUtil():
 
 		if len(ao_processed) > 0:
 			self.__red_calc.save_processed(calc_keys, ao_processed[0])
-			logger.info('Calculations saved successfully: %s'%ao_processed[0]["instrument"])
+			# logger.info('Saved: %s:%s:MACD:%s'%(ao_processed[0]["instrument"],ao_processed[0]["close"], ao_processed[0]["macd"]))

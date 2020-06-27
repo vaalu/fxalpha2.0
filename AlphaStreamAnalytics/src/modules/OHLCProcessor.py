@@ -2,6 +2,7 @@ from modules.props.ConfigProps import AppOHLCLogger
 from modules.util.RedisUtil import RedisUtil
 from modules.util.DateTimeUtil import DateTimeUtil
 from modules.CalculationsProcessor import CalculationsProcessor
+from modules.analytics.StrategiesPlug import StrategiesPlug
 
 logger = AppOHLCLogger('OHLCProcessor')
 date_util = DateTimeUtil.get_instance()
@@ -22,6 +23,7 @@ class OHLCProcessor():
 	
 	__red_util = RedisUtil.get_instance()
 	__calc_processor = CalculationsProcessor.get_instance()
+	__strategies = StrategiesPlug.get_instance()
 	def process_all_from_cache_with_limit(self, topics_to_process, tstart_time, tend_time, duration):
 		index = tstart_time
 		if topics_to_process != None and duration == 1:
@@ -29,10 +31,14 @@ class OHLCProcessor():
 			for topic in topics_to_process:
 				process_ohlc(self.__red_util, topic, index, tend_time, limit, "%iM"%(duration))
 			self.__calc_processor.process_1_min_calc(tend_time)
+			for topic in topics_to_process:
+				self.__strategies.analyze(topic, 1, tend_time)
 		elif topics_to_process != None and duration == 5:
 			limit = 60 * duration # 5 min
 			for topic in topics_to_process:
 				process_ohlc_5(self.__red_util, topic, index, tend_time, limit, "%iM"%(duration))
 			self.__calc_processor.process_5_min_calc(tend_time)
+			for topic in topics_to_process:
+				self.__strategies.analyze(topic, 5, tend_time)
 	def remove_processed(self):
 		self.__red_util.remove_processed()
