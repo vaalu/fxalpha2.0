@@ -23,8 +23,8 @@ class DataExportProcessor():
 		except OSError as e:
 			pass
 		try:
-			logger.info('Writing data: %s'%data)
 			bkp_file = ('%s/%s-%s-%i-min.data.json'%(backup_path, instr_token, instr_name, duration)).replace(" ", "-")
+			logger.info('Writing data for: %s'%instr_name)
 			with open(bkp_file, 'w') as file:
 				json.dump(data, file)
 				file.close()
