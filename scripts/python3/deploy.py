@@ -45,6 +45,9 @@ mongo_port=config.get('MONGO', 'deploy.mongo.server.port')
 mongo_user=config.get('MONGO', 'deploy.mongo.server.user')
 mongo_password=config.get('MONGO', 'deploy.mongo.server.password')
 
+telebot_token=config.get('TELEBOT', 'deploy.telegram.bot.token')
+telebot_chat_id=config.get('TELEBOT', 'deploy.telegram.bot.chatid')
+
 client = boto3.client(
     's3',
     aws_access_key_id=accessKey,
@@ -165,6 +168,7 @@ def update_properties_alphastream():
 	alice_config.read(alpha_props)
 	
 	alice_config.set('TRADING_INSTRUMENTS', 'alphavantage.key', alphavantage_key)
+	alice_config.set('MONGO', 'mongo.password', mongo_password)
 	alice_config.set('KAFKA', 'kafka.server.url', kafka_url)
 	alice_config.set('KAFKA', 'kafka.server.port', kafka_port)
 	alice_config.set('LOGGER', 'logging.file', log_file)
@@ -190,6 +194,8 @@ def update_properties_alpha_analytics():
 	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.secret', alice_client_secret)
 	alice_config.set('ALICE_ANT_OAUTH2', 'alice.ant.client.password', alice_client_password)
 	alice_config.set('TRADING_INSTRUMENTS', 'alphavantage.key', alphavantage_key)
+	alice_config.set('TRADING_INSTRUMENTS', 'telegram.bot.token', telebot_token)
+	alice_config.set('TRADING_INSTRUMENTS', 'telegram.bot.chatid', telebot_chat_id)
 	alice_config.set('LOGGER', 'logging.dir', log_dir)
 	alice_config.set('LOGGER', 'logging.file', log_file)
 	alice_config.set('LOGGER', 'logging.level', log_level)
