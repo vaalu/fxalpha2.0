@@ -36,6 +36,8 @@ AppProps = {
 	'ALPHAVANTAGE_URL':config.get('TRADING_INSTRUMENTS', 'alphavantage.url'), 
 	'NIFTY50_URL':config.get('TRADING_INSTRUMENTS', 'nifty50.url'), 
 	'NIFTY50_FILE':config.get('TRADING_INSTRUMENTS', 'static.equities'), 
+	'TELEBOT_TOKEN':config.get('TRADING_INSTRUMENTS', 'telegram.bot.token'), 
+	'TELEBOT_CHAT_ID':config.get('TRADING_INSTRUMENTS', 'telegram.bot.chatid'),
 	'MONGO_URL':config.get('MONGO', 'mongo.server.url'), 
 	'MONGO_PORT':config.get('MONGO', 'mongo.server.port'), 
 	'MONGO_USER':config.get('MONGO', 'mongo.user'), 

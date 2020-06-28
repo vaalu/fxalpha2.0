@@ -18,3 +18,4 @@ pymongo
 setuptools
 kiteconnect
 telegram
+python-telegram-bot

@@ -1,5 +1,6 @@
 from modules.props.ConfigProps import AppStrategyLogger
 from modules.util.RedisStrategyUtil import RedisStrategyUtil
+from modules.util.TeleBotUtil import TeleBotUtil
 
 logger = AppStrategyLogger('MACDStrategy')
 class MACDStrategy():
@@ -7,6 +8,7 @@ class MACDStrategy():
 	__strategy_id = 'MACD'
 	__store = {}
 	__name = "MACD"
+	__telebot = TeleBotUtil.get_instance()
 	__instance = None
 	@staticmethod
 	def get_instance():
@@ -19,18 +21,22 @@ class MACDStrategy():
 			raise Exception('MACD Strategy is now singleton')
 		else:
 			MACDStrategy.__instance = self
+			self.__telebot.send_message_01('MACD strategy initialized')
 	def get_name(self):
 		return self.__name
 	def invalidate(self, bucket):
 		logger.info('INVALIDATED|%s'%(bucket))
+		self.__telebot.send_message_01('INVALIDATED|%s'%bucket)
 		return self.__red_stg_util.reset(bucket)
 	def stoploss(self, trend, ltp, bucket):
 		logger.info('Stoploss: %s: %f: %s'%(trend, ltp, bucket))
+		self.__telebot.send_message_01('Stoploss: %s: %f: %s'%(trend, ltp, bucket))
 		bucket["status"] = "STOP"
 		return bucket
 	def completed(self, ltp, bucket):
 		bucket = self.__red_stg_util.reset(bucket)
 		logger.info('COMPLETED|%f:%s'%(ltp,bucket))
+		self.__telebot.send_message_01('COMPLETED|%f:%s'%(ltp,bucket))
 		return bucket
 	def process_bucket(self, data, bucket, duration):
 		ltp = float(data["last_traded_price"])
