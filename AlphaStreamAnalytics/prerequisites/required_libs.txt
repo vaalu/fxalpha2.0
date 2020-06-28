@@ -17,3 +17,4 @@ hiredis
 pymongo
 setuptools
 kiteconnect
+telegram
