@@ -48,5 +48,5 @@ class OHLCItemProcessor():
 		self.__in_mem["timestamp"] = timestamp
 	def final_save(self, callback):
 		self.process_ohlc(self.__in_mem, callback)
-		logger.info(self.__in_mem)
+		# logger.info(self.__in_mem)
 

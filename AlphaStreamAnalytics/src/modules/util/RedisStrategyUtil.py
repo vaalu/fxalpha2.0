@@ -31,7 +31,7 @@ class RedisStrategyUtil():
 			self.__red.hmset(strategy_bucket, data)
 	def save_bucket(self, bucket):
 		self.__red.hmset(bucket["id"], bucket)
-	def fetch(self, strategy_id, instr, duration, curr_min, prev_min):
+	def fetch(self, instr, duration, curr_min, prev_min):
 		curr_hkey = '%s:%iM:%i'%(instr, duration, curr_min)
 		prev_hkey = '%s:%iM:%i'%(instr, duration, prev_min)
 		keys_to_fetch = [curr_hkey, prev_hkey]

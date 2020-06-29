@@ -182,5 +182,5 @@ class RedisUtil():
 				self.__red.delete(*split_keys_del)
 				self.__red.delete(*split_kv_del)
 				index = index-1
-			logger.info('Deleting from cache. Remaining batches: %i'%index)
+			logger.info('Deleting... Remaining batches: %i'%index)
 RedisUtil()

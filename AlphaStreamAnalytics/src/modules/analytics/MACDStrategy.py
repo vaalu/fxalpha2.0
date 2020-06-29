@@ -24,19 +24,35 @@ class MACDStrategy():
 			self.__telebot.send_message_01('MACD strategy initialized')
 	def get_name(self):
 		return self.__name
+	def invoke_bot_message(self, message):
+		self.__telebot.send_message_01(message)
 	def invalidate(self, bucket):
-		logger.info('INVALIDATED|%s'%(bucket))
-		self.__telebot.send_message_01('INVALIDATED|%s'%bucket)
+		trend = bucket["trend"] if "trend" in bucket else "NA"
+		status= bucket["status"] if "status" in bucket else "NA"
+		instr = bucket["id"].split(":")
+		name = instr[4]
+		duration = instr[3]
+		self.invoke_bot_message('INVALIDATED : %s : %s min : trend : %s : status : %s'%(name, duration, trend, status))
 		return self.__red_stg_util.reset(bucket)
 	def stoploss(self, trend, ltp, bucket):
 		logger.info('Stoploss: %s: %f: %s'%(trend, ltp, bucket))
-		self.__telebot.send_message_01('Stoploss: %s: %f: %s'%(trend, ltp, bucket))
+		trend = bucket["trend"] if "trend" in bucket else "NA"
+		status= bucket["status"] if "status" in bucket else "NA"
+		instr = bucket["id"].split(":")
+		name = instr[4]
+		duration = instr[3]
+		self.invoke_bot_message('STOPLOSS : %s : %s min : trend : %s : status : %s : LTP : %f'%(name, duration, trend, status, ltp))
 		bucket["status"] = "STOP"
 		return bucket
 	def completed(self, ltp, bucket):
 		bucket = self.__red_stg_util.reset(bucket)
 		logger.info('COMPLETED|%f:%s'%(ltp,bucket))
-		self.__telebot.send_message_01('COMPLETED|%f:%s'%(ltp,bucket))
+		trend = bucket["trend"] if "trend" in bucket else "NA"
+		status= bucket["status"] if "status" in bucket else "NA"
+		instr = bucket["id"].split(":")
+		name = instr[4]
+		duration = instr[3]
+		self.invoke_bot_message('COMPLETED : %s : %s min : trend : %s : status : %s : LTP : %f'%(name, duration, trend, status, ltp))
 		return bucket
 	def process_bucket(self, data, bucket, duration):
 		ltp = float(data["last_traded_price"])
@@ -48,9 +64,17 @@ class MACDStrategy():
 		if trend == "long" and ltp > entry and ("target" not in bucket):
 			bucket["status"] = "RUNNING"
 			bucket["target"] = ltp + float(bucket["target_spread"])
+			instr = bucket["id"].split(":")
+			name = instr[4]
+			duration = instr[3]
+			self.invoke_bot_message('RUNNING (LONG): %s : %s min : LTP : %f : TARGET : %s'%(name, duration, ltp, bucket["target"]))
 		elif trend == "short" and ltp < entry and ("target" not in bucket):
 			bucket["status"] = "RUNNING"
 			bucket["target"] = ltp - float(bucket["target_spread"])
+			instr = bucket["id"].split(":")
+			name = instr[4]
+			duration = instr[3]
+			self.invoke_bot_message('RUNNING (SHORT): %s : %s min : LTP : %f : TARGET : %s'%(name, duration, ltp, bucket["target"]))
 		elif trend == "long" and ltp > target:
 			logger.info('Target completed: LONG: %f : %s'%(ltp, bucket))
 			bucket = self.completed(ltp,bucket)
@@ -79,17 +103,41 @@ class MACDStrategy():
 				if "long" == bucket["trend"] and float(cdata["high"]) > float(bucket["high"]) and float(cdata["macd"]) > 0 and status != "SIGNAL":
 					bucket["entry"] = float(cdata["high"]) + entry_spread
 					bucket["status"] = "SIGNAL"
+					instrm = bucket["id"].split(":")
+					name = instrm[4]
+					self.invoke_bot_message('SIGNAL (LONG): %s : %s min : entry : %f : status : %s'%(name, duration, bucket["entry"], bucket["status"]))
 				elif "short" == bucket["trend"] and float(cdata["low"]) < float(bucket["low"]) and float(cdata["macd"]) < 0 and status != "SIGNAL":
 					bucket["entry"] = float(cdata["low"]) - entry_spread
 					bucket["status"] = "SIGNAL"
+					instrm = bucket["id"].split(":")
+					name = instrm[4]
+					self.invoke_bot_message('SIGNAL (SHORT): %s : %s min : entry : %f : status : %s'%(name, duration, bucket["entry"], bucket["status"]))
 				elif ("long" == bucket["trend"] and float(cdata["macd"]) < 0) or ("short" == bucket["trend"] and float(cdata["macd"]) > 0):
-					return self.invalidate(bucket)
+					bucket = self.invalidate(bucket)
+					curr_macd = float(cdata["macd"]) if cdata != None and "macd" in cdata else 0
+					prev_macd = float(pdata["macd"]) if pdata != None and "macd" in pdata else 0
+					if curr_macd > 0 and prev_macd < 0:
+						bucket["trend"] = "long"
+					if curr_macd < 0 and prev_macd > 0:
+						bucket["trend"] = "short"
+					if "trend" in bucket:
+						bucket["high"] = cdata["high"]
+						bucket["low"] = cdata["low"]
+						bucket["macd"] = cdata["macd"]
+						bucket["spread"] = entry_spread
+						bucket["target_spread"] = target_spread
+						instrm = bucket["id"].split(":")
+						name = instrm[4]
+						self.invoke_bot_message('SIGNAL: %s : trend %s : %s min : high : %f : low : %s'%(name, bucket["trend"], duration, bucket["high"], bucket["low"]))
+					return bucket
 			else:
 				macd = float(cdata["macd"]) if "macd" in cdata else 0
 				if "long" == bucket["trend"] and macd < 0:
 					bucket["stoploss"] = float(cdata["low"]) - entry_spread
+					# self.invoke_bot_message('SIGNAL|PREPARE|LONG|%s'%bucket)
 				elif "short" == bucket["trend"] and macd > 0:
 					bucket["stoploss"] = float(cdata["high"]) + entry_spread
+					# self.invoke_bot_message('SIGNAL|PREPARE|SHORT|%s'%bucket)
 			return bucket
 		def find_trend(cdata, pdata, bucket):
 			# logger.info('Finding trend %s:%s:%s'%(cdata, pdata, bucket))
@@ -110,7 +158,7 @@ class MACDStrategy():
 			if trend == "invalidated" or trend == "stoploss":
 				bucket = self.__red_stg_util.reset(bucket)
 			if "trend" not in bucket or trend == "":
-				logger.info('Freshly checking after invalidate %s'%bucket)
+				# logger.info('Freshly checking after invalidate %s'%bucket)
 				curr_macd = float(cdata["macd"]) if cdata != None and "macd" in cdata else 0
 				prev_macd = float(pdata["macd"]) if pdata != None and "macd" in pdata else 0
 				if curr_macd > 0 and prev_macd < 0:
@@ -123,6 +171,9 @@ class MACDStrategy():
 					bucket["macd"] = cdata["macd"]
 					bucket["spread"] = entry_spread
 					bucket["target_spread"] = target_spread
+					instrm = bucket["id"].split(":")
+					name = instrm[4]
+					self.invoke_bot_message('SIGNAL: %s : trend %s : %s min : high : %s : low : %s'%(name, bucket["trend"], duration, bucket["high"], bucket["low"]))
 					return find_buffer(cdata, pdata, bucket)
 			else:
 				return find_buffer(cdata, pdata, bucket)

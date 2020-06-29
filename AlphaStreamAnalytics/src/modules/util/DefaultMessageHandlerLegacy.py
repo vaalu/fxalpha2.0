@@ -25,7 +25,6 @@ class DefaultMessageHandlerLegacy():
 		# Read value from message and store in cache for further processing
 		source_val = message
 		etstamp = source_val["exchange_timestamp"] if self.__start <= int(source_val["exchange_timestamp"]) <= self.__end else self.__now_time() 
-		# etstamp = self.__now_time()
 		curr_ts = float(etstamp) + ((datetime.datetime.now().microsecond % 100000)/100000)
 		source_val["exchange_timestamp"] = etstamp
 		hset_key = '%s:%s:%s'%(source_val["instrument_token"], etstamp, curr_ts)

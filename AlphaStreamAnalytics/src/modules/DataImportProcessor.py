@@ -3,6 +3,7 @@ import json
 import ast
 from modules.util.RedisUtil import RedisUtil
 from modules.util.RedisCalcUtil import RedisCalcUtil
+from modules.util.DateTimeUtil import DateTimeUtil
 from modules.props.ConfigProps import AppDataBackupLogger, AppProps
 
 logger = AppDataBackupLogger.get_instance()
@@ -11,6 +12,7 @@ class DataImportProcessor():
 	__redis_util = RedisCalcUtil()
 	__red = RedisUtil.get_instance()
 	__equities, __commodities, __all_instruments = __red.fetch_all_instruments()
+	__date_util = DateTimeUtil.get_instance()
 	def __init__(self):
 		logger.info('Processing import processor')
 	def read_from_file(self, instr_token, instr_name, duration) :
@@ -53,13 +55,30 @@ class DataImportProcessor():
 			data = self.read_from_file(token, symbol, 5)
 			self.__redis_util.save_imported(data)
 	def read_prev_data_from_backup(self):
-		for instrument in self.__all_instruments:
+		start_time, eq_time, cm_time = self.__date_util.get_market_timings_previous_day()
+		def last_30_values(instrument, data, duration):
+			if data != None:
+				items_to_save = []
+				total_items = 30
+				prev_items = data[-total_items:]
+				init_time = start_time - (30 * (60 * duration))
+				for index in range(0, 31):
+					time_key = init_time + (index * (60 * duration))
+					token = instrument["token"]
+					key = "%s:%iM:%s"%(token, duration, int(time_key))
+					item = data[index]
+					item["instrument"] = key
+					# logger.info('Substituted key: %s | %s'%(key, item ))
+					items_to_save.append(item)
+				if items_to_save != None and len(items_to_save) > 0:
+					self.__redis_util.save_imported(items_to_save)
+		for instrument in self.__equities:
 			token = instrument["token"]
 			symbol = instrument["symbol"]
 			logger.info('Instrument %s : %s'%(token, symbol))
 			data = self.read_prev_from_file(token, symbol, 1)
-			self.__redis_util.save_imported(data)
-			data = self.read_from_file(token, symbol, 5)
-			self.__redis_util.save_imported(data)
+			last_30_values(instrument, data, 1)
+			data = self.read_prev_from_file(token, symbol, 5)
+			last_30_values(instrument, data, 5)
 
 
