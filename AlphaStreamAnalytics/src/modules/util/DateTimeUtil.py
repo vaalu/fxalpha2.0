@@ -64,6 +64,10 @@ class DateTimeUtil():
 		end_time_equities = self.get_end_time_equities_prev()
 		end_time_commodities = self.get_end_time_commodities_prev()
 		return start_time, end_time_equities, end_time_commodities
+	def get_strategy_closure_timings(self):
+		end_time_equities = time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, 14, 45, 0).timetuple()) - self.__offset
+		end_time_commodities = time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, 23, 0, 0).timetuple()) - self.__offset
+		return end_time_equities, end_time_commodities
 	def get_custom_time(self, hh, mnt, scnd):
 		return time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, hh, mnt, scnd).timetuple())
 DateTimeUtil()

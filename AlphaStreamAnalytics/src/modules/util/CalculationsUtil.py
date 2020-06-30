@@ -3,6 +3,7 @@ from modules.util.calc.RSI import RSI
 from modules.util.calc.BollingerBands import BollingerBands
 from modules.util.calc.MACD import MACD
 from modules.util.calc.AwesomeOscillator import AwesomeOscillator
+from modules.util.calc.KeltnerChannel import KeltnerChannel
 from modules.props.ConfigProps import AppLogger
 from modules.util.RedisCalcUtil import RedisCalcUtil
 
@@ -12,6 +13,7 @@ class CalculationsUtil():
 	__rsi_util = RSI()
 	__macd_util = MACD()
 	__awesome_osc = AwesomeOscillator()
+	__kc = KeltnerChannel()
 	__dateutil = None
 	__red_calc = None
 	def __init__(self, dateutil):
@@ -46,8 +48,20 @@ class CalculationsUtil():
 			to_be_returned.extend(populated)
 			to_be_returned.extend(remaining)
 		return keys, to_be_returned
-	def __stochastic(self):
-		logger.info('Stochastic')
+	def __keltner(self, data):
+		populated = []
+		to_be_returned = []
+		keys = []
+		if data != None and len(data) > 0:
+			__n_period, __n_atr = self.__kc.get_config()
+			kc_data = data[0:__n_period]
+			kc_data.reverse()
+			keys, populated = self.__rsi_util.calculate(kc_data)
+			populated.reverse()
+			remaining = data[__n_period:]
+			to_be_returned.extend(populated)
+			to_be_returned.extend(remaining)
+		return keys, to_be_returned
 	def __macd(self, data):
 		# logger.info('MACD')
 		populated = []
@@ -104,6 +118,9 @@ class CalculationsUtil():
 		ao_keys, ao_processed = self.__awesome(macd_processed)
 		calc_keys.extend(ao_keys)
 
-		if len(ao_processed) > 0:
-			self.__red_calc.save_processed(calc_keys, ao_processed[0])
+		kc_keys, kc_processed = self.__keltner(ao_processed)
+		calc_keys.extend(kc_keys)
+
+		if len(kc_processed) > 0:
+			self.__red_calc.save_processed(calc_keys, kc_processed[0])
 			# logger.info('Saved: %s:%s:MACD:%s'%(ao_processed[0]["instrument"],ao_processed[0]["close"], ao_processed[0]["macd"]))

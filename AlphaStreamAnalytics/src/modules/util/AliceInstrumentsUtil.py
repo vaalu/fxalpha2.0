@@ -80,6 +80,14 @@ class AliceInstruments():
 			logger.info('Processed symbol %s vs actual %s'%(processed_sym, symbol_id))
 			if processed_sym != symbol_id:
 				instr = self.alice.get_instrument_by_symbol(exchange='MCX', symbol=processed_sym)
+			month_index = month
+			while instr == None or "token" not in instr:
+				month_index = month_index + 1 if month_index < 12 else 1 
+				new_month_str = self.__month_arr[month_index]
+				symbol_id = '%s %s FUT'%(commodity, new_month_str)
+				instr = self.alice.get_instrument_by_symbol(exchange='MCX', symbol=symbol_id)
+				indx += 1
+				
 			commodities_list.append(instr)
 			commodities_token_list.append([4, instr.token])
 		logger.info('Fetching for commodities %s'%str(commodities_list))

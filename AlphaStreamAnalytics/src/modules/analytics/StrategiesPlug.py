@@ -45,6 +45,27 @@ class StrategiesPlug():
 						"symbol":instrument["symbol"], 
 						"apply_for":5
 					}
+				if "SILVER" in instrument["symbol"]:
+					self.__spread_targets[instr_key] = {
+						"entry":50, 
+						"target":200,
+						"symbol":instrument["symbol"], 
+						"apply_for":5
+					}
+				if "ZINC" in instrument["symbol"]:
+					self.__spread_targets[instr_key] = {
+						"entry":0.15, 
+						"target":1,
+						"symbol":instrument["symbol"], 
+						"apply_for":5
+					}
+				if "COPPER" in instrument["symbol"]:
+					self.__spread_targets[instr_key] = {
+						"entry":0.35, 
+						"target":2,
+						"symbol":instrument["symbol"], 
+						"apply_for":5
+					}
 			try:
 				logger.info('Reading spread info')
 				with open('equities.spread.csv', 'r') as csv_file:
@@ -76,14 +97,12 @@ class StrategiesPlug():
 							"closing_price":curr_data["close"], 
 							"apply_for":5
 						}
-					logger.info('%i : %i'%(indx, len(self.__equities_spread)))
 					if (indx+1) < len(self.__equities_spread):
 						indx = indx + 1
 					next_spread = self.__equities_spread[indx]
-					
-				
 			logger.info(self.__spread_targets)
-
+			for strategy in self.__strategies:
+				strategy.spread_info(self.__spread_targets)
 	def process_on_tick(self, data):
 		for strategy in self.__strategies:
 			strategy.process(data)
