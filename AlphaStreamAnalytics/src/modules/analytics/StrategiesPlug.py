@@ -16,6 +16,7 @@ class StrategiesPlug():
 	__equities_spread = []
 	__spread_targets = {}
 	__date_util = DateTimeUtil.get_instance()
+	__eq_stg_end_time, __cm_stg_end_time = __date_util.get_strategy_closure_timings()
 	@staticmethod
 	def get_instance():
 		if StrategiesPlug.__instance == None:
@@ -36,35 +37,40 @@ class StrategiesPlug():
 						"entry":8, 
 						"target":18,
 						"symbol":instrument["symbol"], 
-						"apply_for":1
+						"apply_for":1,
+						"type":"commodity"
 					}
 				if "NATURALGAS" in instrument["symbol"]:
 					self.__spread_targets[instr_key] = {
 						"entry":0.3, 
 						"target":1,
 						"symbol":instrument["symbol"], 
-						"apply_for":5
+						"apply_for":5,
+						"type":"commodity"
 					}
 				if "SILVER" in instrument["symbol"]:
 					self.__spread_targets[instr_key] = {
 						"entry":50, 
 						"target":200,
 						"symbol":instrument["symbol"], 
-						"apply_for":5
+						"apply_for":5,
+						"type":"commodity"
 					}
 				if "ZINC" in instrument["symbol"]:
 					self.__spread_targets[instr_key] = {
 						"entry":0.15, 
 						"target":1,
 						"symbol":instrument["symbol"], 
-						"apply_for":5
+						"apply_for":5,
+						"type":"commodity"
 					}
 				if "COPPER" in instrument["symbol"]:
 					self.__spread_targets[instr_key] = {
 						"entry":0.35, 
 						"target":2,
 						"symbol":instrument["symbol"], 
-						"apply_for":5
+						"apply_for":5,
+						"type":"commodity"
 					}
 			try:
 				logger.info('Reading spread info')
@@ -87,19 +93,22 @@ class StrategiesPlug():
 				prev_time = start_time - 60 * 5
 				curr_data, prev_data = self.__red_stg_util.fetch(instr_token, 5, int(start_time), int(prev_time))
 				indx = 1
+				null_check = lambda a, b : a != None and a != {} and b != None and b != {}
 				next_spread = self.__equities_spread[indx]
-				for spread_info in self.__equities_spread:
-					if float(spread_info["price_range"]) < float(curr_data["close"]):
-						self.__spread_targets[instr_token] = {
-							"entry":next_spread["spread"], 
-							"target":next_spread["target"],
-							"symbol":equity["symbol"], 
-							"closing_price":curr_data["close"], 
-							"apply_for":5
-						}
-					if (indx+1) < len(self.__equities_spread):
-						indx = indx + 1
-					next_spread = self.__equities_spread[indx]
+				if self.__equities_spread != None and len(self.__equities_spread) > 0 and null_check(curr_data, prev_data):
+					for spread_info in self.__equities_spread:
+						if float(spread_info["price_range"]) < float(curr_data["close"]):
+							self.__spread_targets[instr_token] = {
+								"entry":next_spread["spread"], 
+								"target":next_spread["target"],
+								"symbol":equity["symbol"], 
+								"closing_price":curr_data["close"], 
+								"apply_for":5, 
+								"type":"equity"
+							}
+						if (indx+1) < len(self.__equities_spread):
+							indx = indx + 1
+						next_spread = self.__equities_spread[indx]
 			logger.info(self.__spread_targets)
 			for strategy in self.__strategies:
 				strategy.spread_info(self.__spread_targets)
@@ -111,7 +120,9 @@ class StrategiesPlug():
 		entry_spread = self.__spread_targets[str(instrument)]["entry"] if str(instrument) in self.__spread_targets else 0
 		target_spread = self.__spread_targets[str(instrument)]["target"] if str(instrument) in self.__spread_targets else 0
 		apply_for = self.__spread_targets[str(instrument)]["apply_for"] if str(instrument) in self.__spread_targets else 0
-		if entry_spread > 0 and target_spread > 0:
+		instr_type = self.__spread_targets[str(instrument)]["type"] if str(instrument) in self.__spread_targets else ""
+		end_time = self.__eq_stg_end_time if instr_type == "equity" else self.__cm_stg_end_time
+		if entry_spread > 0 and target_spread > 0 and processing_time <= end_time:
 			for strategy in self.__strategies:
 				curr_data, prev_data = self.__red_stg_util.fetch(instrument, duration, processing_time, prev_min)
 				bucket_01, bucket_05 = self.__red_stg_util.fetch_strategies(strategy.get_name(), instrument)

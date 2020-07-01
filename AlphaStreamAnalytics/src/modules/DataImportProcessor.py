@@ -55,7 +55,7 @@ class DataImportProcessor():
 			data = self.read_from_file(token, symbol, 5)
 			self.__redis_util.save_imported(data)
 	def read_prev_data_from_backup(self):
-		start_time, eq_time, cm_time = self.__date_util.get_market_timings_previous_day()
+		start_time, eq_time, cm_time = self.__date_util.get_market_timings()
 		def last_30_values(instrument, data, duration):
 			if data != None:
 				items_to_save = []
