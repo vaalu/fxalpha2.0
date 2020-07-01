@@ -60,9 +60,8 @@ class MACDStrategy():
 	def process_bucket(self, data, bucket, duration):
 		ltp = float(data["last_traded_price"])
 		trend = bucket["trend"] if "trend" in bucket else ""
-		target = float(bucket["target"]) if "target" in bucket else ltp
+		target = float(bucket["target"]) if "target" in bucket else ltp # + 1 if trend == "long" else ltp - 1
 		target_spread = float(bucket["target_spread"]) if "target_spread" in bucket else ltp 
-		stoploss = float(bucket["stoploss"]) if "stoploss" in bucket else 0
 		entry = float(bucket["entry"]) if "entry" in  bucket else ltp
 		status = bucket["status"] if "status" in bucket else ""
 		if trend == "long" and ltp > entry and ("target" not in bucket) and status != "RUNNING":
@@ -85,11 +84,13 @@ class MACDStrategy():
 		elif trend == "short" and ltp <= target:
 			logger.info('Target completed: SHORT: %f : %s'%(ltp, bucket))
 			bucket = self.completed(ltp,bucket)
-		elif trend == "long" and ltp <= stoploss:
-			logger.info('Stoploss completed: LONG: %f : %s'%(ltp, bucket))
-			bucket = self.stoploss('LONG', ltp, bucket)
-		elif trend == "short" and ltp >= stoploss:
-			bucket = self.stoploss('SHORT', ltp, bucket)
+		elif "stoploss" in bucket:
+			stoploss = float(bucket["stoploss"])
+			if trend == "long" and ltp < stoploss:
+				logger.info('Stoploss completed: LONG: %f : %s'%(ltp, bucket))
+				bucket = self.stoploss('LONG', ltp, bucket)
+			elif trend == "short" and ltp > stoploss:
+				bucket = self.stoploss('SHORT', ltp, bucket)
 		self.__red_stg_util.save_bucket(bucket)
 	def process(self, data):
 		instr = data["instrument_token"]
