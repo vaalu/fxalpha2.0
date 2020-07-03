@@ -1,6 +1,8 @@
+import json
 from modules.props.ConfigProps import AppProps, AppKiteLogger
 from kiteconnect import KiteConnect
 logger = AppKiteLogger.get_instance()
+import requests
 
 class KiteUtil():
 	__api_key = AppProps["KITE_API_KEY"]
@@ -18,13 +20,13 @@ class KiteUtil():
 			raise Exception('KiteUtil is now singleton')
 		else:
 			KiteUtil.__instance = self
-	def connect(self):
-		logger.info('Connecting to kafka util')
+	def connect(self, req_token):
+		logger.info('Connecting to kafka util with token: %s'%req_token)
 		logger.info('Kite login url: %s'%self.__kite.login_url())
-		data = self.__kite.generate_session("2Bx0dKFB7CMuBpU2CV9vfbiIt8ObpEvC", api_secret=self.__api_secret)
-		self.__kite.set_access_token(data["access_token"])
-		self.__kite.instruments()
-
+		resp = self.__kite.generate_session(req_token, self.__api_secret)
+		self.__kite.set_access_token(resp["access_token"])
+		instruments = self.__kite.instruments(exchange="MCX")
+		logger.info('Instrument list from Zerodha: %s'%instruments)
 
 KiteUtil()
 	

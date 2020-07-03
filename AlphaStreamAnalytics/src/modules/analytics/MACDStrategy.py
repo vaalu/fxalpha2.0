@@ -1,6 +1,5 @@
 from modules.props.ConfigProps import AppStrategyLogger
 from modules.util.RedisStrategyUtil import RedisStrategyUtil
-from modules.util.TeleBotUtil import TeleBotUtil
 
 logger = AppStrategyLogger('MACDStrategy')
 class MACDStrategy():
@@ -8,7 +7,7 @@ class MACDStrategy():
 	__strategy_id = 'MACD'
 	__store = {}
 	__name = "MACD"
-	__telebot = TeleBotUtil.get_instance()
+	__telebot = None
 	__spread_info = {}
 	__instance = None
 	@staticmethod
@@ -22,11 +21,12 @@ class MACDStrategy():
 			raise Exception('MACD Strategy is now singleton')
 		else:
 			MACDStrategy.__instance = self
-			self.__telebot.send_message_01('Program started')
 	def get_name(self):
 		return self.__name
 	def spread_info(self, spread_info):
 		self.__spread_info = spread_info
+	def messaging_bot(self, bot):
+		self.__telebot = bot
 	def invoke_bot_message(self, message):
 		self.__telebot.send_message_01(message)
 	def invalidate(self, bucket):
@@ -60,7 +60,6 @@ class MACDStrategy():
 	def process_bucket(self, data, bucket, duration):
 		ltp = float(data["last_traded_price"])
 		trend = bucket["trend"] if "trend" in bucket else ""
-		target = float(bucket["target"]) if "target" in bucket else ltp # + 1 if trend == "long" else ltp - 1
 		target_spread = float(bucket["target_spread"]) if "target_spread" in bucket else ltp 
 		entry = float(bucket["entry"]) if "entry" in  bucket else ltp
 		status = bucket["status"] if "status" in bucket else ""
@@ -78,19 +77,25 @@ class MACDStrategy():
 			name = self.__spread_info[instr[4]]["symbol"] if instr[4] in self.__spread_info else instr[4]
 			duration = instr[3]
 			self.invoke_bot_message('RUNNING (SHORT): %s : %s min : LTP : %f : TARGET : %s'%(name, duration, ltp, bucket["target"]))
-		elif trend == "long" and ltp >= target:
-			logger.info('Target completed: LONG: %f : %s'%(ltp, bucket))
-			bucket = self.completed(ltp,bucket)
-		elif trend == "short" and ltp <= target:
-			logger.info('Target completed: SHORT: %f : %s'%(ltp, bucket))
-			bucket = self.completed(ltp,bucket)
-		elif "stoploss" in bucket:
-			stoploss = float(bucket["stoploss"])
-			if trend == "long" and ltp < stoploss:
-				logger.info('Stoploss completed: LONG: %f : %s'%(ltp, bucket))
-				bucket = self.stoploss('LONG', ltp, bucket)
-			elif trend == "short" and ltp > stoploss:
-				bucket = self.stoploss('SHORT', ltp, bucket)
+		else:  
+			if "target" in bucket:
+				target = float(bucket["target"]) if "target" in bucket else ltp # + 1 if trend == "long" else ltp - 1
+				if trend == "long" and ltp > target:
+					logger.info('Target completed: LONG: %f : %s'%(ltp, bucket))
+					bucket = self.completed(ltp,bucket)
+				elif trend == "short" and ltp < target:
+					logger.info('Target completed: SHORT: %f : %s'%(ltp, bucket))
+					bucket = self.completed(ltp,bucket)
+			if "stoploss" in bucket:
+				stoploss = float(bucket["stoploss"])
+				if trend == "long" and ltp < stoploss:
+					logger.info('Stoploss completed: LONG: %f : %s'%(ltp, bucket))
+					bucket = self.stoploss('LONG', ltp, bucket)
+					bucket = self.__red_stg_util.reset(bucket)
+				elif trend == "short" and ltp > stoploss:
+					bucket = self.stoploss('SHORT', ltp, bucket)
+					bucket = self.__red_stg_util.reset(bucket)
+				
 		self.__red_stg_util.save_bucket(bucket)
 	def process(self, data):
 		instr = data["instrument_token"]

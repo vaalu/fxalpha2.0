@@ -68,6 +68,10 @@ class DateTimeUtil():
 		end_time_equities = time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, 14, 45, 0).timetuple()) - self.__offset
 		end_time_commodities = time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, 23, 0, 0).timetuple()) - self.__offset
 		return end_time_equities, end_time_commodities
+	def get_strategy_closure_positions(self):
+		psn_cls_equities = time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, 15, 15, 0).timetuple()) - self.__offset
+		psn_cls_commodities = time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, 23, 15, 0).timetuple()) - self.__offset
+		return psn_cls_equities, psn_cls_commodities
 	def get_custom_time(self, hh, mnt, scnd):
 		return time.mktime(datetime(self.__today_date.year, self.__today_date.month, self.__today_date.day, hh, mnt, scnd).timetuple())
 DateTimeUtil()

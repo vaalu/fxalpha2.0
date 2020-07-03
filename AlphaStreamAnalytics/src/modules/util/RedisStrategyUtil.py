@@ -14,6 +14,11 @@ class RedisStrategyUtil():
 		}
 		self.__red.hmset(strategy_bucket, bucket)
 		return bucket
+	def reset_bucket(self, strategy_id, instr, duration):
+		bkt_id = 'STG:BKT:%s:%i:%s'%(strategy_id, duration, instr)
+		self.__red.hdel(bkt_id, *self.__reset_keys)
+		return bucket
+	
 	def reset(self, bucket):
 		self.__red.hdel(bucket["id"], *self.__reset_keys)
 		bucket = self.__red.hgetall(bucket["id"])

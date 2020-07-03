@@ -4,6 +4,7 @@ from modules.analytics.MACDStrategy import MACDStrategy
 from modules.util.RedisUtil import RedisUtil
 from modules.util.RedisStrategyUtil import RedisStrategyUtil
 from modules.util.DateTimeUtil import DateTimeUtil
+from modules.util.TeleBotUtil import TeleBotUtil
 
 logger = AppStrategyLogger('StrategiesPlug')
 class StrategiesPlug():
@@ -17,6 +18,13 @@ class StrategiesPlug():
 	__spread_targets = {}
 	__date_util = DateTimeUtil.get_instance()
 	__eq_stg_end_time, __cm_stg_end_time = __date_util.get_strategy_closure_timings()
+	__psn_cls_eq, __psn_cls_cm = __date_util.get_strategy_closure_positions()
+	__st, __eq_end, __cm_end = __date_util.get_market_timings()
+	__is_equities_time_up = False
+	__is_commodities_time_up = False
+	__is_eq_posn_cleared = False
+	__is_cm_posn_cleared = False
+	__telebot = TeleBotUtil.get_instance()
 	@staticmethod
 	def get_instance():
 		if StrategiesPlug.__instance == None:
@@ -59,7 +67,7 @@ class StrategiesPlug():
 				if "ZINC" in instrument["symbol"]:
 					self.__spread_targets[instr_key] = {
 						"entry":0.15, 
-						"target":1,
+						"target":0.7,
 						"symbol":instrument["symbol"], 
 						"apply_for":5,
 						"type":"commodity"
@@ -68,6 +76,14 @@ class StrategiesPlug():
 					self.__spread_targets[instr_key] = {
 						"entry":0.35, 
 						"target":2,
+						"symbol":instrument["symbol"], 
+						"apply_for":5,
+						"type":"commodity"
+					}
+				if "GOLD" in instrument["symbol"]:
+					self.__spread_targets[instr_key] = {
+						"entry":50, 
+						"target":200,
 						"symbol":instrument["symbol"], 
 						"apply_for":5,
 						"type":"commodity"
@@ -112,6 +128,8 @@ class StrategiesPlug():
 			logger.info(self.__spread_targets)
 			for strategy in self.__strategies:
 				strategy.spread_info(self.__spread_targets)
+				strategy.messaging_bot(self.__telebot)
+			self.__telebot.send_message_01('Program started')
 	def process_on_tick(self, data):
 		for strategy in self.__strategies:
 			strategy.process(data)
@@ -122,7 +140,7 @@ class StrategiesPlug():
 		apply_for = self.__spread_targets[str(instrument)]["apply_for"] if str(instrument) in self.__spread_targets else 0
 		instr_type = self.__spread_targets[str(instrument)]["type"] if str(instrument) in self.__spread_targets else ""
 		end_time = self.__eq_stg_end_time if instr_type == "equity" else self.__cm_stg_end_time
-		if entry_spread > 0 and target_spread > 0 and processing_time <= end_time:
+		if entry_spread > 0 and target_spread > 0 and processing_time >= self.__st and processing_time <= end_time:
 			for strategy in self.__strategies:
 				curr_data, prev_data = self.__red_stg_util.fetch(instrument, duration, processing_time, prev_min)
 				bucket_01, bucket_05 = self.__red_stg_util.fetch_strategies(strategy.get_name(), instrument)
@@ -130,5 +148,22 @@ class StrategiesPlug():
 				if duration == apply_for:
 					bucket = strategy.analyze(instrument, duration, curr_data, prev_data, entry_spread, target_spread, bucket)
 					bucket = self.__red_stg_util.save_bucket(bucket)
-
+		self.__is_equities_time_up = self.__is_equities_time_up == False and processing_time > self.__psn_cls_eq
+		self.__is_commodities_time_up = self.__is_commodities_time_up == False and processing_time > self.__psn_cls_cm
+		if self.__is_equities_time_up and self.__is_eq_posn_cleared == False:
+			self.__telebot.send_message_01('Equities time up. Closing all equity positions')
+			for instrument in self.__equities:
+				for strategy in self.__strategies:
+					instr_key = instrument["token"]
+					self.__red_stg_util.reset_bucket(strategy.get_name(), instr_key, 1)
+					self.__red_stg_util.reset_bucket(strategy.get_name(), instr_key, 5)
+			self.__is_eq_posn_cleared = True
+		if self.__is_commodities_time_up and self.__is_cm_posn_cleared == False:
+			self.__telebot.send_message_01('Commodities time up. Closing all commodity positions')
+			for instrument in self.__commodities:
+				for strategy in self.__strategies:
+					instr_key = instrument["token"]
+					self.__red_stg_util.reset_bucket(strategy.get_name(), instr_key, 1)
+					self.__red_stg_util.reset_bucket(strategy.get_name(), instr_key, 5)
+			self.__is_cm_posn_cleared = True
 StrategiesPlug()

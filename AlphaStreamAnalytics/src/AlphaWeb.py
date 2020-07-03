@@ -1,3 +1,4 @@
+from modules.util.KiteUtil import KiteUtil
 from modules.props.ConfigProps import AppLogger
 from modules.Alice import Alice
 from flask import Flask, request
@@ -24,6 +25,12 @@ def invoke():
 		logger.info('Initialized for equities data')
 	thread.start_new_thread(runE, ())
 	return 'Alpha connected with token:%s'%(alice.access_token)
+
+@app.route("/analytics/<token>",methods=['GET'])
+def analytics(token):
+	kite_util = KiteUtil.get_instance()
+	kite_util.connect(token)
+	return 'Alpha connected with token:%s'%(token)
 
 @app.route("/shutdown",methods=['GET'])
 def stopServer():
