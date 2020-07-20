@@ -30,7 +30,7 @@
     "graphql-import-node": "0.0.4",
     "graphql-tag-pluck": "^0.8.5",
     "graphql-toolkit": "^0.5.12",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "node-fetch": "^2.6.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.0"
